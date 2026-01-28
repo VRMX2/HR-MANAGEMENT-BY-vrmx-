@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Search, Plus, Bell } from 'lucide-react';
 import { useEmployees } from '../context/EmployeeContext';
+import { useSearch } from '../context/SearchContext';
+import { useAuth } from '../context/AuthContext';
 import AddEmployeeModal from './AddEmployeeModal';
 
 export default function Header() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { addEmployee } = useEmployees();
+    const { searchTerm, setSearchTerm } = useSearch();
+    const { currentUser } = useAuth();
 
     return (
         <>
@@ -15,6 +19,8 @@ export default function Header() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                         <input
                             type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search employees, departments..."
                             className="w-full bg-dark-800 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-primary-500 transition-colors"
                         />
@@ -38,8 +44,12 @@ export default function Header() {
                     <div className="h-8 w-[1px] bg-dark-700 mx-2"></div>
 
                     <button className="flex items-center gap-3 pl-2 pr-1 rounded-lg hover:bg-dark-800 transition-colors">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white border border-dark-700">
-                            JD
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white border border-dark-700">
+                            {currentUser?.photoURL ? (
+                                <img src={currentUser.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                currentUser?.email?.[0]?.toUpperCase() || 'U'
+                            )}
                         </div>
                     </button>
                 </div>
