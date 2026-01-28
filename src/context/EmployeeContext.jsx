@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, addDoc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 const EmployeeContext = createContext();
@@ -67,8 +67,16 @@ export function EmployeeProvider({ children }) {
         await addDoc(collection(db, 'employees'), employeeToAdd);
     };
 
+    const deleteEmployee = async (id) => {
+        try {
+            await deleteDoc(doc(db, 'employees', id));
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+        }
+    };
+
     return (
-        <EmployeeContext.Provider value={{ employees, addEmployee, totalEmployees, loading }}>
+        <EmployeeContext.Provider value={{ employees, addEmployee, deleteEmployee, totalEmployees, loading }}>
             {children}
         </EmployeeContext.Provider>
     );

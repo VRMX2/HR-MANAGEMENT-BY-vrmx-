@@ -2,15 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// TODO: Replace with your Firebase project configuration
-// You can find this in the Firebase Console: Project Settings > General > Your apps > SDK setup and configuration
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
+    apiKey: "AIzaSyD8D9HGfoxjaocCHJTijDlTBvdtXueMl0M",
     authDomain: "vrmx-hrms-pro.firebaseapp.com",
     projectId: "vrmx-hrms-pro",
-    storageBucket: "vrmx-hrms-pro.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    storageBucket: "vrmx-hrms-pro.firebasestorage.app",
+    messagingSenderId: "777926547029",
+    appId: "1:777926547029:web:cfce4fa44527fcabb626dc"
 };
 
 const app = initializeApp(firebaseConfig);
