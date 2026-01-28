@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Plus, Bell } from 'lucide-react';
 import { useEmployees } from '../context/EmployeeContext';
 import { useSearch } from '../context/SearchContext';
@@ -36,14 +37,15 @@ export default function Header() {
                         <span>Add Employee</span>
                     </button>
 
-                    <button className="relative p-2 text-gray-400 hover:text-white transition-colors">
+                    <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-white transition-colors">
                         <Bell size={20} />
+                        {/* Simple dot for now, ideally we read unread count from context if we had a NotificationContext */}
                         <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary-500 rounded-full border border-dark-900"></span>
-                    </button>
+                    </Link>
 
                     <div className="h-8 w-[1px] bg-dark-700 mx-2"></div>
 
-                    <button className="flex items-center gap-3 pl-2 pr-1 rounded-lg hover:bg-dark-800 transition-colors">
+                    <Link to="/settings" className="flex items-center gap-3 pl-2 pr-1 rounded-lg hover:bg-dark-800 transition-colors">
                         <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white border border-dark-700">
                             {currentUser?.photoURL ? (
                                 <img src={currentUser.photoURL} alt="Avatar" className="w-full h-full object-cover" />
@@ -51,7 +53,7 @@ export default function Header() {
                                 currentUser?.email?.[0]?.toUpperCase() || 'U'
                             )}
                         </div>
-                    </button>
+                    </Link>
                 </div>
             </header>
 

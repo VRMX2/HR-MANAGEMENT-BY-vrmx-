@@ -1,14 +1,29 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, Settings, Bell, HelpCircle } from 'lucide-react';
+import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, Settings, Bell, HelpCircle, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export default function Sidebar() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    const { showToast } = useToast();
     const active = location.pathname;
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            showToast('Logged out successfully', 'success');
+            navigate('/login');
+        } catch (error) {
+            showToast('Failed to log out', 'error');
+        }
+    };
 
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: Users, label: 'Employees', badge: 248, path: '/employees' },
+        { icon: Users, label: 'Employees', badge: null, path: '/employees' },
         { icon: Building2, label: 'Departments', path: '/departments' },
         { icon: CalendarDays, label: 'Attendance', path: '/attendance' },
         { icon: FileText, label: 'Documents', path: '/documents' },
@@ -16,17 +31,17 @@ export default function Sidebar() {
     ];
 
     const settingsItems = [
-        { icon: Bell, label: 'Notifications', badge: 5, badgeColor: 'bg-red-500', path: '/notifications' },
+        { icon: Bell, label: 'Notifications', badge: 3, badgeColor: 'bg-red-500', path: '/notifications' },
         { icon: Settings, label: 'Settings', path: '/settings' },
         { icon: HelpCircle, label: 'Help Center', path: '/help' },
     ];
 
     return (
-        <div className="w-64 bg-dark-800 border-r border-dark-700 flex flex-col h-screen fixed left-0 top-0">
-            <div className="p-6">
+        <div className="w-64 bg-dark-800 border-r border-dark-700 flex flex-col h-screen fixed left-0 top-0 text-sm">
+            <div className="p-6 flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-8">
-                    <div className="bg-primary-500 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white">P</div>
-                    <h1 className="text-xl font-bold text-white">PeopleHub</h1>
+                    <div className="bg-gradient-to-br from-primary-500 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">P</div>
+                    <h1 className="text-xl font-bold text-white tracking-tight">PeopleHub</h1>
                 </div>
 
                 <div className="mb-6">
@@ -36,13 +51,16 @@ export default function Sidebar() {
                             <Link
                                 key={item.label}
                                 to={item.path}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 group ${active === item.path
-                                        ? 'bg-gradient-to-r from-primary-600/20 to-transparent text-primary-500 border-r-2 border-primary-500'
-                                        : 'text-gray-400 hover:text-white hover:bg-dark-700'
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${active === item.path
+                                    ? 'bg-gradient-to-r from-primary-600/10 to-transparent text-primary-500'
+                                    : 'text-gray-400 hover:text-white hover:bg-dark-700'
                                     }`}
                             >
+                                {active === item.path && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary-500 rounded-r-full"></div>
+                                )}
                                 <item.icon size={20} className={active === item.path ? 'text-primary-500' : 'text-gray-400 group-hover:text-white'} />
-                                <span className="flex-1 text-left">{item.label}</span>
+                                <span className="flex-1 text-left font-medium">{item.label}</span>
                                 {item.badge && (
                                     <span className={`text-xs px-2 py-0.5 rounded-full ${active === item.path ? 'bg-primary-500 text-white' : 'bg-dark-700 text-gray-400'
                                         }`}>
@@ -55,17 +73,22 @@ export default function Sidebar() {
                 </div>
 
                 <div>
-                    <h2 className="text-xs font-semibold text-gray-500 mb-4 px-2 uppercase tracking-wider">Settings</h2>
+                    <h2 className="text-xs font-semibold text-gray-500 mb-4 px-2 uppercase tracking-wider">System</h2>
                     <nav className="space-y-1">
                         {settingsItems.map((item) => (
                             <Link
                                 key={item.label}
                                 to={item.path}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors duration-200 group ${active === item.path ? 'bg-dark-700 text-white' : ''
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${active === item.path
+                                    ? 'bg-dark-700 text-white'
+                                    : 'text-gray-400 hover:text-white hover:bg-dark-700'
                                     }`}
                             >
+                                {active === item.path && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-gray-500 rounded-r-full"></div>
+                                )}
                                 <item.icon size={20} className="group-hover:text-white" />
-                                <span className="flex-1 text-left">{item.label}</span>
+                                <span className="flex-1 text-left font-medium">{item.label}</span>
                                 {item.badge && (
                                     <span className={`text-xs px-2 py-0.5 rounded-full text-white ${item.badgeColor}`}>
                                         {item.badge}
@@ -73,8 +96,20 @@ export default function Sidebar() {
                                 )}
                             </Link>
                         ))}
+
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200 group mt-4"
+                        >
+                            <LogOut size={20} className="group-hover:text-red-400" />
+                            <span className="flex-1 text-left font-medium">Logout</span>
+                        </button>
                     </nav>
                 </div>
+            </div>
+
+            <div className="p-4 border-t border-dark-700 bg-dark-900/50">
+                <p className="text-xs text-gray-500 text-center">PeopleHub v1.0.0</p>
             </div>
         </div>
     );

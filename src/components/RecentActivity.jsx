@@ -1,35 +1,88 @@
 import React from 'react';
-
-const activities = [
-    { id: 1, user: 'Sarah Johnson', action: 'submitted leave request', time: '2 minutes ago', avatar: 'SJ', color: 'bg-yellow-600' },
-    { id: 2, user: 'Michael Chen', action: 'completed onboarding', time: '15 minutes ago', avatar: 'MC', color: 'bg-green-600' },
-    { id: 3, user: 'Emily Davis', action: 'updated profile information', time: '1 hour ago', avatar: 'ED', color: 'bg-orange-600' },
-    { id: 4, user: 'James Wilson', action: 'joined the Sales team', time: '3 hours ago', avatar: 'JW', color: 'bg-purple-600' },
-    { id: 5, user: 'Lisa Anderson', action: 'approved 3 leave requests', time: '5 hours ago', avatar: 'LA', color: 'bg-pink-600' },
-];
+import { Link } from 'react-router-dom';
+import { useAttendance } from '../context/AttendanceContext';
+import { useEmployees } from '../context/EmployeeContext';
 
 export default function RecentActivity() {
+    const { attendanceRecords } = useAttendance();
+    const { employees } = useEmployees();
+
+    // 1. Map Attendance Check-ins
+    // Assuming attendanceRecords structure has { employeeName, checkInTime, id }
+    // We filter for today's check-ins or recent ones.
+    // For simplicity, let's take the last 5 records from the raw list if available
+
+    // Note: The context might return grouped data. We need to check useAttendance implementation.
+    // Looking at previous patterns, attendanceRecords seems to be a list.
+
+    // Let's mix in "New Hires" from employees list based on 'createdAt' or 'joined' date.
+
+    const recentHires = employees
+        .sort((a, b) => new Date(b.joined) - new Date(a.joined))
+        .slice(0, 3)
+        .map(emp => ({
+            id: `hire-${emp.id}`,
+            user: emp.name,
+            action: `joined the ${emp.dept} team`,
+            time: emp.joined, // This is a date string like "Oct 24, 2025"
+            timestamp: new Date(emp.joined).getTime(),
+            avatar: emp.avatar,
+            color: 'bg-green-600'
+        }));
+
+    // Mocking "attendance" activity from the context if it provides timestamps. 
+    // If context only provides "today's" records, we use that.
+    // For now, let's assume attendanceRecords contains { employeeId, checkIn, date }
+
+    const recentCheckIns = attendanceRecords
+        .slice(0, 5)
+        .map(record => {
+            const emp = employees.find(e => e.id === record.employeeId);
+            return {
+                id: `att-${record.id}`,
+                user: emp ? emp.name : 'Unknown Employee',
+                action: 'checked in',
+                time: record.checkIn, // e.g., "09:00 AM"
+                timestamp: new Date().setHours(9, 0, 0), // Mock sorting for today
+                avatar: emp ? emp.avatar : '??',
+                color: 'bg-blue-600'
+            };
+        });
+
+    // Merge and sort
+    // Since we don't have exact timestamps for everything, we'll just stack them: Check-ins first (today), then recent hires.
+
+    const activities = [...recentCheckIns, ...recentHires].slice(0, 5);
+
     return (
         <div className="bg-dark-800 rounded-xl p-6 border border-dark-700 h-full">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-white">Recent Activity</h2>
-                <button className="text-sm text-gray-400 hover:text-white transition-colors">View all</button>
+                <Link to="/attendance" className="text-sm text-gray-400 hover:text-white transition-colors">View all</Link>
             </div>
 
             <div className="space-y-6">
-                {activities.map((activity) => (
-                    <div key={activity.id} className="flex gap-4">
-                        <div className={`w-8 h-8 rounded-full ${activity.color} flex-shrink-0 flex items-center justify-center text-xs font-bold text-white`}>
-                            {activity.avatar}
+                {activities.length > 0 ? (
+                    activities.map((activity) => (
+                        <div key={activity.id} className="flex gap-4">
+                            <div className={`w-8 h-8 rounded-full ${activity.color} flex-shrink-0 flex items-center justify-center text-xs font-bold text-white overflow-hidden`}>
+                                {activity.avatar && activity.avatar.length > 2 ? (
+                                    <img src={activity.avatar} alt="avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    activity.avatar
+                                )}
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-300">
+                                    <span className="font-semibold text-white">{activity.user}</span> {activity.action}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-gray-300">
-                                <span className="font-semibold text-white">{activity.user}</span> {activity.action}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                        </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <p className="text-gray-500 text-sm">No recent activity recorded.</p>
+                )}
             </div>
         </div>
     );

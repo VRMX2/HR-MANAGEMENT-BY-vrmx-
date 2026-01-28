@@ -44,12 +44,17 @@ export function DepartmentProvider({ children }) {
         });
     };
 
+    const updateDepartment = async (id, data) => {
+        const deptRef = doc(db, 'departments', id);
+        await updateDoc(deptRef, data);
+    };
+
     const deleteDepartment = async (id) => {
         await deleteDoc(doc(db, 'departments', id));
     };
 
     return (
-        <DepartmentContext.Provider value={{ departments, addDepartment, deleteDepartment, loading }}>
+        <DepartmentContext.Provider value={{ departments, addDepartment, updateDepartment, deleteDepartment, loading }}>
             {children}
         </DepartmentContext.Provider>
     );

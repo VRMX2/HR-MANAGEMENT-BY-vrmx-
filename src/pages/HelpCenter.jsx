@@ -9,6 +9,10 @@ export default function HelpCenter() {
         { q: "How do I create a new department?", a: "Navigate to the Departments page and click 'Add Department'. You'll need to specify a name and assign a department head." },
     ];
 
+    const handleChat = () => {
+        alert("Connecting to live support agent... (Simulation: Chat window would open here)");
+    };
+
     return (
         <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -24,7 +28,7 @@ export default function HelpCenter() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group">
+                <div className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group" onClick={() => window.open('https://docs.employees.com', '_blank')}>
                     <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                         <Book size={24} />
                     </div>
@@ -32,7 +36,7 @@ export default function HelpCenter() {
                     <p className="text-gray-400 text-sm">Detailed guides and articles about all features.</p>
                 </div>
 
-                <div className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group">
+                <div className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group" onClick={handleChat}>
                     <div className="w-12 h-12 bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500 group-hover:text-white transition-colors">
                         <MessageCircle size={24} />
                     </div>
@@ -40,13 +44,13 @@ export default function HelpCenter() {
                     <p className="text-gray-400 text-sm">Chat with our support team in real-time.</p>
                 </div>
 
-                <div className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group">
+                <a href="mailto:support@peoplehub.com" className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group block">
                     <div className="w-12 h-12 bg-orange-500/10 text-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                         <Mail size={24} />
                     </div>
                     <h3 className="text-lg font-bold text-white mb-2">Email Support</h3>
                     <p className="text-gray-400 text-sm">Get help via email for complex issues.</p>
-                </div>
+                </a>
             </div>
 
             <div className="bg-dark-800 rounded-xl border border-dark-700 p-8">

@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { useEmployees } from '../context/EmployeeContext';
+import { useSearch } from '../context/SearchContext';
+import { useToast } from '../context/ToastContext';
 import { Search, Plus, MoreHorizontal, Trash2, Edit } from 'lucide-react';
 import AddEmployeeModal from '../components/AddEmployeeModal';
 
 export default function Employees() {
-    const { employees, deleteEmployee, addEmployee, loading } = useEmployees();
-    const [searchTerm, setSearchTerm] = useState('');
+    const { employees, deleteEmployee, addEmployee, updateEmployee, loading } = useEmployees();
+    const { searchTerm, setSearchTerm } = useSearch();
+    const { showToast } = useToast();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingEmployee, setEditingEmployee] = useState(null);
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const filteredEmployees = employees.filter(emp =>
         emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -15,11 +24,48 @@ export default function Employees() {
         emp.dept.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Calculate pages
+    const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentEmployees = filteredEmployees.slice(indexOfFirstItem, indexOfLastItem);
+
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this employee?')) {
-            await deleteEmployee(id);
+            try {
+                await deleteEmployee(id);
+                showToast('Employee deleted successfully', 'success');
+            } catch (error) {
+                showToast('Failed to delete employee', 'error');
+            }
         }
     };
+
+    const handleEdit = (employee) => {
+        setEditingEmployee(employee);
+        setIsModalOpen(true);
+    };
+
+    const handleModalSubmit = async (data) => {
+        try {
+            if (editingEmployee) {
+                await updateEmployee(editingEmployee.id, data);
+                showToast('Employee updated successfully', 'success');
+            } else {
+                await addEmployee(data);
+                showToast('Employee added successfully', 'success');
+            }
+            setEditingEmployee(null);
+            setIsModalOpen(false);
+        } catch (error) {
+            showToast('Operation failed', 'error');
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingEmployee(null);
+    }
 
     if (loading) {
         return <div className="text-white">Loading employees...</div>;
@@ -33,7 +79,7 @@ export default function Employees() {
                     <p className="text-gray-400">Manage your team members and their roles.</p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => { setEditingEmployee(null); setIsModalOpen(true); }}
                     className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-lg shadow-primary-500/20"
                 >
                     <Plus size={20} />
@@ -49,7 +95,7 @@ export default function Employees() {
                             type="text"
                             placeholder="Search by name, role, or department..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} // Reset page on search
                             className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-primary-500 transition-colors"
                         />
                     </div>
@@ -68,13 +114,17 @@ export default function Employees() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-dark-700/50">
-                            {filteredEmployees.length > 0 ? (
-                                filteredEmployees.map((emp) => (
+                            {currentEmployees.length > 0 ? (
+                                currentEmployees.map((emp) => (
                                     <tr key={emp.id} className="group hover:bg-dark-700/30 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-full ${emp.color || 'bg-gray-600'} flex items-center justify-center text-sm font-bold text-white`}>
-                                                    {emp.avatar}
+                                                <div className={`w-10 h-10 rounded-full ${emp.color || 'bg-gray-600'} flex items-center justify-center text-sm font-bold text-white overflow-hidden`}>
+                                                    {emp.avatar && emp.avatar.length > 2 ? (
+                                                        <img src={emp.avatar} alt={emp.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        emp.avatar || emp.name[0]
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <div className="text-sm font-medium text-white">{emp.name}</div>
@@ -86,7 +136,9 @@ export default function Employees() {
                                         <td className="px-6 py-4 text-sm text-gray-400">{emp.role}</td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${emp.status === 'Active'
-                                                    ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                : emp.status === 'On Leave'
+                                                    ? 'bg-red-500/10 text-red-500 border-red-500/20'
                                                     : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                                 }`}>
                                                 {emp.status}
@@ -95,7 +147,11 @@ export default function Employees() {
                                         <td className="px-6 py-4 text-sm text-gray-400">{emp.joined}</td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="p-2 text-gray-400 hover:text-white hover:bg-dark-600 rounded-lg transition-colors" title="Edit">
+                                                <button
+                                                    onClick={() => handleEdit(emp)}
+                                                    className="p-2 text-gray-400 hover:text-white hover:bg-dark-600 rounded-lg transition-colors"
+                                                    title="Edit"
+                                                >
                                                     <Edit size={16} />
                                                 </button>
                                                 <button
@@ -120,19 +176,33 @@ export default function Employees() {
                     </table>
                 </div>
 
+                {/* Pagination Stats */}
                 <div className="px-6 py-4 border-t border-dark-700 bg-dark-800/50 text-xs text-gray-500 flex justify-between items-center">
-                    <span>Showing {filteredEmployees.length} of {employees.length} employees</span>
+                    <span>Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredEmployees.length)} of {filteredEmployees.length} employees</span>
                     <div className="flex gap-2">
-                        <button className="px-3 py-1 rounded border border-dark-600 hover:bg-dark-700 hover:text-white transition-colors disabled:opacity-50" disabled>Previous</button>
-                        <button className="px-3 py-1 rounded border border-dark-600 hover:bg-dark-700 hover:text-white transition-colors disabled:opacity-50" disabled>Next</button>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 rounded border border-dark-600 hover:bg-dark-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="px-3 py-1 rounded border border-dark-600 hover:bg-dark-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>
 
             <AddEmployeeModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onAdd={addEmployee}
+                onClose={handleCloseModal}
+                onAdd={handleModalSubmit}
+                initialData={editingEmployee}
             />
         </div>
     );

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Users, UserCheck, UserMinus, Clock } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import RecentEmployees from '../components/RecentEmployees';
@@ -108,9 +109,20 @@ export default function Dashboard() {
 
             {/* Middle Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 h-[400px]">
-                    {/* Passing searchTerm to RecentEmployees if it accepts props, or it consumes context */}
-                    <RecentEmployees searchTerm={searchTerm} />
+                <div className="lg:col-span-2 h-[400px] flex flex-col">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                        <h2 className="text-lg font-bold text-white">Recent Employees</h2>
+                        <Link to="/employees" className="text-sm text-primary-500 hover:text-primary-400 font-medium">View All</Link>
+                    </div>
+                    {/* Reuse RecentEmployees but maybe we modify it to show less or just use it as is. 
+                        Actually RecentEmployees component has its own header. Let's check RecentEmployees.jsx content first if needed.
+                        Wait, I am replacing the usage in Dashboard.jsx. 
+                        Let's check RecentEmployees.jsx content effectively. 
+                        Actually, let's just wrap the component call. 
+                    */}
+                    <div className="flex-1 overflow-hidden">
+                        <RecentEmployees searchTerm={searchTerm} />
+                    </div>
                 </div>
                 <div className="lg:col-span-1 h-[400px]">
                     <RecentActivity />

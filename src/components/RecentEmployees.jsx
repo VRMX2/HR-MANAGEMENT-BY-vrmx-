@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useEmployees } from '../context/EmployeeContext';
 
 export default function RecentEmployees({ searchTerm = '' }) {
@@ -16,7 +17,7 @@ export default function RecentEmployees({ searchTerm = '' }) {
         <div className="bg-dark-800 rounded-xl border border-dark-700 h-full flex flex-col">
             <div className="p-6 border-b border-dark-700 flex justify-between items-center bg-dark-800/50">
                 <h2 className="text-lg font-bold text-white">Recent Employees</h2>
-                <button className="text-sm text-primary-500 hover:text-primary-400 font-medium">View All</button>
+                <Link to="/employees" className="text-sm text-primary-500 hover:text-primary-400 font-medium">View All</Link>
             </div>
             <div className="p-4 overflow-x-auto flex-1">
                 <table className="w-full text-left border-collapse">
@@ -44,10 +45,10 @@ export default function RecentEmployees({ searchTerm = '' }) {
                                 <td className="py-3 text-sm text-gray-400">{employee.role}</td>
                                 <td className="py-3">
                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${employee.status === 'Active'
-                                            ? 'bg-green-500/10 text-green-500'
-                                            : employee.status === 'On Leave'
-                                                ? 'bg-red-500/10 text-red-500'
-                                                : 'bg-yellow-500/10 text-yellow-500'
+                                        ? 'bg-green-500/10 text-green-500'
+                                        : employee.status === 'On Leave'
+                                            ? 'bg-red-500/10 text-red-500'
+                                            : 'bg-yellow-500/10 text-yellow-500'
                                         }`}>
                                         {employee.status}
                                     </span>

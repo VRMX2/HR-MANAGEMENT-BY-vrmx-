@@ -1,20 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
+export default function AddEmployeeModal({ isOpen, onClose, onAdd, initialData = null }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         role: '',
-        dept: 'Engineering'
+        dept: 'Engineering',
+        status: 'Active'
     });
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                name: initialData.name || '',
+                email: initialData.email || '',
+                role: initialData.role || '',
+                dept: initialData.dept || 'Engineering',
+                status: initialData.status || 'Active'
+            });
+        } else {
+            setFormData({
+                name: '',
+                email: '',
+                role: '',
+                dept: 'Engineering',
+                status: 'Active'
+            });
+        }
+    }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
         onAdd(formData);
-        setFormData({ name: '', email: '', role: '', dept: 'Engineering' });
         onClose();
     };
 
@@ -22,7 +42,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="bg-dark-800 rounded-xl border border-dark-700 w-full max-w-md p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-white">Add New Employee</h2>
+                    <h2 className="text-xl font-bold text-white">{initialData ? 'Edit Employee' : 'Add New Employee'}</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
                         <X size={24} />
                     </button>
@@ -82,6 +102,21 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
                         </div>
                     </div>
 
+                    {initialData && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Status</label>
+                            <select
+                                value={formData.status}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors appearance-none"
+                            >
+                                <option>Active</option>
+                                <option>On Leave</option>
+                                <option>Terminated</option>
+                            </select>
+                        </div>
+                    )}
+
                     <div className="pt-4 flex justify-end gap-3">
                         <button
                             type="button"
@@ -94,7 +129,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
                             type="submit"
                             className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors shadow-lg shadow-primary-500/20"
                         >
-                            Add Employee
+                            {initialData ? 'Save Changes' : 'Add Employee'}
                         </button>
                     </div>
                 </form>

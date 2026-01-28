@@ -1,34 +1,43 @@
 import React from 'react';
-
-const departments = [
-    { name: 'Engineering', count: 68, percentage: 27, color: 'bg-orange-500' },
-    { name: 'Sales', count: 52, percentage: 21, color: 'bg-teal-500' },
-    { name: 'Marketing', count: 45, percentage: 18, color: 'bg-purple-500' },
-    { name: 'Design', count: 38, percentage: 15, color: 'bg-blue-500' },
-    { name: 'HR', count: 25, percentage: 10, color: 'bg-pink-500' },
-    { name: 'Finance', count: 20, percentage: 8, color: 'bg-gray-500' },
-];
+import { useDepartments } from '../context/DepartmentContext';
 
 export default function DepartmentDistribution() {
+    const { departments } = useDepartments();
+
+    // Calculate total employees across all departments to determine percentages
+    const totalEmployees = departments.reduce((acc, dept) => acc + (dept.employeeCount || 0), 0);
+
+    // Sort by count descending
+    const sortedDepartments = [...departments].sort((a, b) => (b.employeeCount || 0) - (a.employeeCount || 0));
+
     return (
         <div className="bg-dark-800 rounded-xl p-6 border border-dark-700 h-full">
             <h2 className="text-lg font-bold text-white mb-6">Department Distribution</h2>
 
             <div className="space-y-5">
-                {departments.map((dept) => (
-                    <div key={dept.name}>
-                        <div className="flex justify-between items-end mb-2">
-                            <span className="text-sm font-medium text-white">{dept.name}</span>
-                            <span className="text-xs text-gray-400">{dept.count} ({dept.percentage}%)</span>
-                        </div>
-                        <div className="h-2 w-full bg-dark-700 rounded-full overflow-hidden">
-                            <div
-                                className={`h-full ${dept.color} rounded-full`}
-                                style={{ width: `${dept.percentage}%` }}
-                            ></div>
-                        </div>
-                    </div>
-                ))}
+                {sortedDepartments.length > 0 ? (
+                    sortedDepartments.map((dept) => {
+                        const count = dept.employeeCount || 0;
+                        const percentage = totalEmployees > 0 ? Math.round((count / totalEmployees) * 100) : 0;
+
+                        return (
+                            <div key={dept.id}>
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-sm font-medium text-white">{dept.name}</span>
+                                    <span className="text-xs text-gray-400">{count} ({percentage}%)</span>
+                                </div>
+                                <div className="h-2 w-full bg-dark-700 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full ${dept.color ? dept.color.replace('text-', 'bg-') : 'bg-blue-500'} rounded-full`}
+                                        style={{ width: `${percentage}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <p className="text-gray-500 text-sm">No department data available.</p>
+                )}
             </div>
         </div>
     );

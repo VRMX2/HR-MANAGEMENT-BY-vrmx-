@@ -18,89 +18,92 @@ import { DepartmentProvider } from './context/DepartmentContext';
 import { AttendanceProvider } from './context/AttendanceContext';
 import { DocumentProvider } from './context/DocumentContext';
 import { SearchProvider } from './context/SearchContext';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
     return (
         <Router>
             <AuthProvider>
-                <SearchProvider>
-                    <DepartmentProvider>
-                        <EmployeeProvider>
-                            <AttendanceProvider>
-                                <DocumentProvider>
-                                    <Routes>
-                                        <Route path="/login" element={<Login />} />
-                                        <Route path="/" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Dashboard />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/employees" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Employees />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/departments" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Departments />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/attendance" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Attendance />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/documents" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Documents />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/analytics" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Analytics />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/notifications" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Notifications />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/settings" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <Settings />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/help" element={
-                                            <ProtectedRoute>
-                                                <DashboardLayout>
-                                                    <HelpCenter />
-                                                </DashboardLayout>
-                                            </ProtectedRoute>
-                                        } />
-                                        {/* Catch all redirect */}
-                                        <Route path="*" element={<Navigate to="/" replace />} />
-                                    </Routes>
-                                </DocumentProvider>
-                            </AttendanceProvider>
-                        </EmployeeProvider>
-                    </DepartmentProvider>
-                </SearchProvider>
+                <ToastProvider>
+                    <SearchProvider>
+                        <DepartmentProvider>
+                            <EmployeeProvider>
+                                <AttendanceProvider>
+                                    <DocumentProvider>
+                                        <Routes>
+                                            <Route path="/login" element={<Login />} />
+                                            <Route path="/" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Dashboard />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/employees" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Employees />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/departments" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Departments />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/attendance" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Attendance />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/documents" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Documents />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/analytics" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Analytics />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/notifications" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Notifications />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/settings" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <Settings />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/help" element={
+                                                <ProtectedRoute>
+                                                    <DashboardLayout>
+                                                        <HelpCenter />
+                                                    </DashboardLayout>
+                                                </ProtectedRoute>
+                                            } />
+                                            {/* Catch all redirect */}
+                                            <Route path="*" element={<Navigate to="/" replace />} />
+                                        </Routes>
+                                    </DocumentProvider>
+                                </AttendanceProvider>
+                            </EmployeeProvider>
+                        </DepartmentProvider>
+                    </SearchProvider>
+                </ToastProvider>
             </AuthProvider>
         </Router>
     );
