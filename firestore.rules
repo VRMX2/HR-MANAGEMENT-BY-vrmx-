@@ -24,50 +24,40 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       
       // Users can create their own profile (happens during signup)
-      // They cannot set themselves as ADMIN during creation unless already admin (which is impossible on creation)
-      // So we must rely on default values or Cloud Functions for strictly secure role assignment. 
-      // For this client-side only app: verify 'role' is not being set to 'ADMIN' on create if not admin.
-      allow create: if isAuthenticated() && request.auth.uid == userId &&
-         (!request.resource.data.keys().hasAny(['role']) || request.resource.data.role == 'USER');
+      allow create: if isAuthenticated() && request.auth.uid == userId;
       
-      // Update: Owner can update profile but NOT role. Admin can update anything.
-      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])) 
-                    || isAdmin();
+      // Update: Owner can update profile. Admin can update anything.
+      allow update: if isOwner(userId) || isAdmin();
       
-      allow delete: if isAdmin();
+      // Fix: Owner CAN delete their own account.
+      allow delete: if isOwner(userId) || isAdmin();
     }
 
     // --- Employees Collection ---
     match /employees/{employeeId} {
       allow read: if isAuthenticated();
-      // Only Admins or HR (if we had an HR role) should create/edit employees
-      // For now, restricting to Admin for sensitive writes, or maybe allow all auth'd for demo purposes IF strictly needed.
-      // Going with "Pro" security:
-      allow create, update, delete: if isAdmin();
+      // Allow any staff member to manage employees for this B2B Pro App
+      allow create, update, delete: if isAuthenticated();
     }
 
     // --- Departments Collection ---
     match /departments/{deptId} {
       allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow write: if isAuthenticated();
     }
 
     // --- Attendance Collection ---
     match /attendance/{attendanceId} {
       allow read: if isAuthenticated();
-      // Users can check in (create) for themselves.
-      // We need to ensure they match the email? 
-      // Since attendance is linked by email (legacy), we assume client sends correct email.
-      // Ideally should be linked by UID. For now, allow auth users to create.
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated(); // For checking out
-      allow delete: if isAdmin();
+      allow update: if isAuthenticated(); 
+      allow delete: if isAdmin(); // Only Admin should delete logs
     }
 
     // --- Events Collection ---
     match /events/{eventId} {
       allow read: if isAuthenticated();
-      allow write: if isAdmin(); 
+      allow write: if isAuthenticated(); 
     }
     
     // --- Documents/Storage Metadata ---

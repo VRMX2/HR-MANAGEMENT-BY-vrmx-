@@ -56,7 +56,6 @@ export function DepartmentProvider({ children }) {
     // Calculate employee counts for each department dynamically
     const departmentsWithCounts = departments.map(dept => {
         const count = employees.filter(emp => emp.dept === dept.name).length;
-        console.log(`Department: ${dept.name}, Employee Count: ${count}`);
         return {
             ...dept,
             employeeCount: count

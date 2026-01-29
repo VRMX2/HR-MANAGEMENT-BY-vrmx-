@@ -7,18 +7,25 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
     const { userData, currentUser } = useAuth();
-    const [theme, setTheme] = useState('dark');
+    // Initialize from localStorage if available, then wait for auth
+    const [theme, setTheme] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') || 'dark';
+        }
+        return 'dark';
+    });
 
     // Sync with User Data from Firestore
     useEffect(() => {
         if (userData?.preferences?.theme) {
             setTheme(userData.preferences.theme);
+            localStorage.setItem('theme', userData.preferences.theme);
         }
     }, [userData]);
 
     // Apply Theme to Body
     useEffect(() => {
-        const root = window.document.documentElement; // or document.body
+        const root = window.document.documentElement;
         if (theme === 'light') {
             root.classList.add('light-mode');
             root.classList.remove('dark');
@@ -26,10 +33,13 @@ export function ThemeProvider({ children }) {
             root.classList.remove('light-mode');
             root.classList.add('dark');
         }
+        localStorage.setItem('theme', theme);
     }, [theme]);
 
     const toggleTheme = async (newTheme) => {
         setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+
         if (currentUser) {
             try {
                 const userRef = doc(db, 'users', currentUser.uid);

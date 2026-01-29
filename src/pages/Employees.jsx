@@ -199,8 +199,28 @@ export default function Employees() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                                        No employees found matching your search.
+                                    <td colSpan="6" className="px-6 py-16 text-center text-gray-500">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <div className="w-16 h-16 rounded-full bg-dark-900 border border-dark-700 flex items-center justify-center text-gray-600">
+                                                <Search size={32} />
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-300 font-medium mb-1">No employees found</p>
+                                                <p className="text-xs">
+                                                    {searchTerm
+                                                        ? `We couldn't find any match for "${searchTerm}"`
+                                                        : "Get started by adding your first team member"}
+                                                </p>
+                                            </div>
+                                            {!searchTerm && (
+                                                <button
+                                                    onClick={() => setIsModalOpen(true)}
+                                                    className="mt-2 text-primary-500 hover:text-primary-400 text-sm font-medium"
+                                                >
+                                                    Add New Employee
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             )}

@@ -11,6 +11,7 @@ import Analytics from './pages/Analytics';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import HelpCenter from './pages/HelpCenter';
+import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { EmployeeProvider } from './context/EmployeeContext';
@@ -105,7 +106,7 @@ function App() {
                                                                 </ProtectedRoute>
                                                             } />
                                                             {/* Catch all redirect */}
-                                                            <Route path="*" element={<Navigate to="/" replace />} />
+                                                            <Route path="*" element={<NotFound />} />
                                                         </Routes>
                                                     </EventProvider>
                                                 </DocumentProvider>
