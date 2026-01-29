@@ -37,7 +37,7 @@ export default function Analytics() {
         const todayStr = new Date().toLocaleDateString();
         const checkedInCount = new Set(
             attendance
-                .filter(r => r.date === todayStr && r.status === 'Check In')
+                .filter(r => r.date === todayStr && (r.status === 'Check In' || r.status === 'Present'))
                 .map(r => r.email)
         ).size;
         return Math.round((checkedInCount / totalEmployees) * 100);

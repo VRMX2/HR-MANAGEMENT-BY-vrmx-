@@ -20,7 +20,7 @@ export const uploadToCloudinary = async (file) => {
     formData.append('signature', signature);
 
     try {
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
             method: 'POST',
             body: formData
         });

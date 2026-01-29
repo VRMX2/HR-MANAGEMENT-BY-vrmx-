@@ -8,7 +8,9 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     updateProfile,
-    updatePassword
+    updatePassword,
+    sendPasswordResetEmail,
+    fetchSignInMethodsForEmail
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -72,6 +74,22 @@ export function AuthProvider({ children }) {
         }
     }
 
+    function resetPassword(email) {
+        return sendPasswordResetEmail(auth, email);
+    }
+
+    async function checkEmailExists(email) {
+        try {
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            return methods.length > 0;
+        } catch (error) {
+            // If email enumeration protection is on, this might return empty or error.
+            // But usually this works for valid users.
+            console.error("Error checking email:", error);
+            return true; // Assume exists to be safe if check fails, let reset email flow handle it
+        }
+    }
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user);
@@ -98,7 +116,9 @@ export function AuthProvider({ children }) {
         loginWithGoogle,
         logout,
         updateUserProfile,
-        changePassword
+        changePassword,
+        resetPassword,
+        checkEmailExists
     };
 
     return (

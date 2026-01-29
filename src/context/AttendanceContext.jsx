@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, addDoc, query, orderBy, where } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import { createAttendanceNotification } from '../services/notificationService';
 
@@ -32,26 +32,50 @@ export function AttendanceProvider({ children }) {
         return unsubscribe;
     }, [currentUser]);
 
-    const markAttendance = async (status) => {
+    const markAttendance = async (status, recordId = null) => {
         if (!currentUser) return;
 
         const employeeName = currentUser.displayName || currentUser.email.split('@')[0];
+        const todayStr = new Date().toLocaleDateString();
 
-        await addDoc(collection(db, 'attendance'), {
-            uid: currentUser.uid,
-            email: currentUser.email,
-            name: employeeName,
-            status,
-            timestamp: new Date(),
-            date: new Date().toLocaleDateString(),
-            checkIn: status === 'Check In' ? new Date().toLocaleTimeString() : null,
-            checkOut: status === 'Check Out' ? new Date().toLocaleTimeString() : null,
-            employeeName: employeeName, // Add for compatibility
-            employeeId: currentUser.uid // Add for compatibility
-        });
+        try {
+            if (status === 'Check In') {
+                // Check if already checked in today to prevent duplicates
+                // (Client side check usually covers this, but good for safety)
+                // We'll proceed to create.
+                await addDoc(collection(db, 'attendance'), {
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    name: employeeName,
+                    status: 'Check In',
+                    timestamp: new Date(),
+                    date: todayStr,
+                    checkIn: new Date().toLocaleTimeString(),
+                    checkOut: null,
+                    employeeName: employeeName,
+                    employeeId: currentUser.uid
+                });
+            } else if (status === 'Check Out') {
+                if (recordId) {
+                    const docRef = doc(db, 'attendance', recordId);
+                    await updateDoc(docRef, {
+                        checkOut: new Date().toLocaleTimeString(),
+                        status: 'Present', // Mark as completed/present for the day
+                        timestamp: new Date() // Update timestamp to show last activity
+                    });
+                } else {
+                    console.error("No record ID provided for checkout");
+                    // Fallback using query if needed, but UI provides ID.
+                }
+            }
 
-        // Create notification
-        await createAttendanceNotification('marked', employeeName, status);
+            // Create notification
+            await createAttendanceNotification('marked', employeeName, status);
+
+        } catch (error) {
+            console.error("Attendance Error:", error);
+            throw error;
+        }
     };
 
     // Compatibility wrappers
@@ -62,7 +86,7 @@ export function AttendanceProvider({ children }) {
     };
 
     const checkOut = async (empId, email, recordId) => {
-        await markAttendance('Check Out');
+        await markAttendance('Check Out', recordId);
     };
 
     return (

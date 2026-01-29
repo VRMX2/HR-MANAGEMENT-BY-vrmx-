@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useDocuments } from '../context/DocumentContext';
 import { useSearch } from '../context/SearchContext';
+import { useToast } from '../context/ToastContext';
 import { FileText, Upload, Trash2, File, Image as ImageIcon, FileSpreadsheet, MoreVertical, Download, Search } from 'lucide-react';
 
 export default function Documents() {
@@ -12,27 +13,37 @@ export default function Documents() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    const { showToast } = useToast();
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            await uploadDocument(file);
+            try {
+                showToast('Uploading document...', 'info');
+                await uploadDocument(file);
+                showToast('Document uploaded successfully!', 'success');
+            } catch (error) {
+                showToast('Failed to upload document.', 'error');
+            }
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this document?')) {
-            await deleteDocument(id);
+            try {
+                await deleteDocument(id);
+                showToast('Document deleted.', 'success');
+            } catch (error) {
+                showToast('Failed to delete.', 'error');
+            }
         }
     };
 
-    const dummyDownload = (doc) => {
-        // In a real app with Firebase Storage, 'doc.url' would be valid.
-        // If we have a Cloudinary URL or similar from the metadata, use it.
-        // For now, if we simulated local storage or have a URL, open it.
-        if (doc.url) {
+    const handleDownload = (doc) => {
+        if (doc.url && doc.url !== '#') {
             window.open(doc.url, '_blank');
         } else {
-            alert(`Simulating download for: ${doc.name}\n(In a full implementation, this would trigger a file download)`);
+            showToast('Invalid document URL.', 'error');
         }
     };
 
@@ -134,7 +145,7 @@ export default function Documents() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
-                                                    onClick={() => dummyDownload(doc)}
+                                                    onClick={() => handleDownload(doc)}
                                                     className="p-2 text-gray-400 hover:text-white hover:bg-dark-600 rounded-lg transition-colors"
                                                     title="Download"
                                                 >

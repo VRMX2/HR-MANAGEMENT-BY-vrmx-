@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, KeyRound } from 'lucide-react';
-import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 
 export default function Login() {
@@ -14,7 +13,7 @@ export default function Login() {
     const [isReset, setIsReset] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { login, signup, loginWithGoogle } = useAuth();
+    const { login, signup, loginWithGoogle, resetPassword, checkEmailExists } = useAuth();
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
@@ -25,8 +24,21 @@ export default function Login() {
 
         try {
             if (isReset) {
-                await sendPasswordResetEmail(auth, email);
-                setMessage('Check your inbox for further instructions.');
+                // 1. Check if user actually exists (Internal Debugging ONLY)
+                const methods = await checkEmailExists(email);
+
+                if (!methods) {
+                    console.warn(`SECURITY: Password reset requested for non-existent email: ${email}`);
+                    // PRO & SECURE: We DO NOT tell the user the account doesn't exist.
+                    // We fake a success message to prevent "User Enumeration" attacks.
+                } else {
+                    console.log("Attempting to send reset email to:", email);
+                    await resetPassword(email);
+                    console.log("Reset email sent successfully.");
+                }
+
+                // Always show the same message
+                setMessage(`If an account exists for ${email}, you will receive a password reset instruction shortly.`);
             } else if (isLogin) {
                 await login(email, password);
                 navigate('/');
