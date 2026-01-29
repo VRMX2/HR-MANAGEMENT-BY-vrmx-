@@ -38,7 +38,7 @@ export default function Notifications() {
 
     const seedNotifications = async () => {
         const seedData = [
-            { title: 'Welcome to PeopleHub', message: 'Get started by adding your first employee.', type: 'success', timestamp: new Date(), read: false },
+            { title: 'Welcome to VRMX HR', message: 'Get started by adding your first employee.', type: 'success', timestamp: new Date(), read: false },
             { title: 'System Update', message: 'Maintenance scheduled for Saturday night.', type: 'warning', timestamp: new Date(Date.now() - 86400000), read: false }
         ];
 

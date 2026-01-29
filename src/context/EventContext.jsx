@@ -33,6 +33,66 @@ export function EventProvider({ children }) {
         return unsubscribe;
     }, [currentUser]);
 
+    // Seed data if empty (run once)
+    useEffect(() => {
+        if (!loading && events.length === 0 && currentUser) {
+            const seedData = async () => {
+                const today = new Date();
+
+                // Event 1: Team Meeting (Tomorrow)
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+
+                // Event 2: Project Review (In 2 days)
+                const inTwoDays = new Date(today);
+                inTwoDays.setDate(today.getDate() + 2);
+
+                // Event 3: HR Training (In 5 days)
+                const inFiveDays = new Date(today);
+                inFiveDays.setDate(today.getDate() + 5);
+
+                const sampleEvents = [
+                    {
+                        title: 'Weekly Team Sync',
+                        description: 'Engineering team weekly sync to discuss progress and blockers.',
+                        date: tomorrow,
+                        time: '10:00',
+                        type: 'meeting',
+                        createdAt: new Date()
+                    },
+                    {
+                        title: 'Project Alpha Review',
+                        description: 'Reviewing Q1 milestones and deliverables.',
+                        date: inTwoDays,
+                        time: '14:00',
+                        type: 'review',
+                        createdAt: new Date()
+                    },
+                    {
+                        title: 'HR Policy Training',
+                        description: 'Mandatory training session for all new department heads.',
+                        date: inFiveDays,
+                        time: '11:30',
+                        type: 'training',
+                        createdAt: new Date()
+                    }
+                ];
+
+                try {
+                    // Add all samples
+                    for (const event of sampleEvents) {
+                        await addDoc(collection(db, 'events'), event);
+                    }
+                    console.log('Seeded sample events');
+                } catch (error) {
+                    console.error('Error seeding events:', error);
+                }
+            };
+
+            seedData();
+        }
+    }, [loading, events.length, currentUser]);
+
     const addEvent = async (eventData) => {
         await addDoc(collection(db, 'events'), {
             ...eventData,

@@ -94,7 +94,7 @@ export default function HelpCenter() {
 
     const handleEmailSupport = () => {
         showToast('Opening your email client...', 'info');
-        window.location.href = 'mailto:support@peoplehub.com?subject=Support Request&body=Please describe your issue here...';
+        window.location.href = 'mailto:support@vrmx.com?subject=Support Request&body=Please describe your issue here...';
     };
 
     return (

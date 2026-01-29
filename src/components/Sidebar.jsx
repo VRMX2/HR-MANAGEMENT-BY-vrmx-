@@ -64,8 +64,8 @@ export default function Sidebar() {
         <div className="w-64 bg-dark-800 border-r border-dark-700 flex flex-col h-screen fixed left-0 top-0 text-sm">
             <div className="p-6 flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-8">
-                    <div className="bg-gradient-to-br from-primary-500 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">P</div>
-                    <h1 className="text-xl font-bold text-white tracking-tight">PeopleHub</h1>
+                    <div className="bg-gradient-to-br from-primary-500 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">V</div>
+                    <h1 className="text-xl font-bold text-white tracking-tight">VRMX HR</h1>
                 </div>
 
                 <div className="mb-6">
@@ -133,7 +133,7 @@ export default function Sidebar() {
             </div>
 
             <div className="p-4 border-t border-dark-700 bg-dark-900/50">
-                <p className="text-xs text-gray-500 text-center">PeopleHub v1.0.0</p>
+                <p className="text-xs text-gray-500 text-center">VRMX HR v1.0.0</p>
             </div>
         </div>
     );
