@@ -1,18 +1,62 @@
-rules_version='2'
-
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2026, 2, 27);
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is admin
+    // Assumes custom claim 'admin' or a field 'role' in the user's document
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
+    }
+
+    // Helper function to check if user is accessing their own data
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // --- Users Collection ---
+    // Users can read their own profile.
+    // Only users themselves or admins can update their profile.
+    match /users/{userId} {
+      allow read: if isAuthenticated(); // Allow reading other users for collaboration (e.g. checking attendee name)
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- Employees Collection ---
+    // Authenticated users can read employees.
+    // Only Admins can modify employee records (prevent accidental deletion).
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated(); // Allow HR staff (users) to add
+      allow update: if isAuthenticated(); // Allow HR staff to update
+      allow delete: if isAdmin(); // RESTRICT DELETE TO ADMINS
+    }
+
+    // --- Departments Collection ---
+    match /departments/{deptId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // HR staff can manage departments
+    }
+
+    // --- Attendance Collection ---
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated(); // Allow modifying attendance if needed
+      allow delete: if isAdmin();
+    }
+
+    // --- Events Collection ---
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); 
     }
   }
 }

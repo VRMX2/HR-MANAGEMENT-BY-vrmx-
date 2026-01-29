@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useDepartments } from '../context/DepartmentContext';
 import { useSearch } from '../context/SearchContext';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 import { Plus, Users, Trash2, Edit2, X } from 'lucide-react';
 
 export default function Departments() {
     const { departments, addDepartment, updateDepartment, deleteDepartment, loading } = useDepartments();
     const { searchTerm } = useSearch();
     const { showToast } = useToast();
+    const { userData } = useAuth(); // Get user role
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDept, setEditingDept] = useState(null);
@@ -82,13 +84,15 @@ export default function Departments() {
                     <h1 className="text-2xl font-bold text-white mb-2">Departments</h1>
                     <p className="text-gray-400">Manage company departments and structure.</p>
                 </div>
-                <button
-                    onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-lg shadow-primary-500/20"
-                >
-                    <Plus size={20} />
-                    <span>Add Department</span>
-                </button>
+                {userData?.role === 'ADMIN' && (
+                    <button
+                        onClick={() => handleOpenModal()}
+                        className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-lg shadow-primary-500/20"
+                    >
+                        <Plus size={20} />
+                        <span>Add Department</span>
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -107,13 +111,15 @@ export default function Departments() {
                                     >
                                         <Edit2 size={16} />
                                     </button>
-                                    <button
-                                        onClick={(e) => handleDelete(dept.id, e)}
-                                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                                        title="Delete"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                                    {userData?.role === 'ADMIN' && (
+                                        <button
+                                            onClick={(e) => handleDelete(dept.id, e)}
+                                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                            title="Delete"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -131,7 +137,7 @@ export default function Departments() {
                         <p className="mb-4">
                             {searchTerm ? `No departments matching "${searchTerm}".` : "No departments found."}
                         </p>
-                        {!searchTerm && (
+                        {!searchTerm && userData?.role === 'ADMIN' && (
                             <button
                                 onClick={() => handleOpenModal()}
                                 className="text-primary-500 hover:text-primary-400 font-medium"

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useEmployees } from '../context/EmployeeContext';
 import { useSearch } from '../context/SearchContext';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { Search, Plus, MoreHorizontal, Trash2, Edit } from 'lucide-react';
 import AddEmployeeModal from '../components/AddEmployeeModal';
 
@@ -9,6 +10,7 @@ export default function Employees() {
     const { employees, deleteEmployee, addEmployee, updateEmployee, loading } = useEmployees();
     const { searchTerm, setSearchTerm } = useSearch();
     const { showToast } = useToast();
+    const { userData } = useAuth();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
@@ -154,13 +156,15 @@ export default function Employees() {
                                                 >
                                                     <Edit size={16} />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleDelete(emp.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
+                                                {userData?.role === 'ADMIN' && (
+                                                    <button
+                                                        onClick={() => handleDelete(emp.id)}
+                                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
