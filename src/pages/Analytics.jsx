@@ -181,17 +181,6 @@ export default function Analytics() {
                                 </div>
                             </div>
                         </div>
-
-                        <div className="mt-8 p-4 bg-dark-900/50 rounded-lg border border-dark-700/50">
-                            <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                                <Clock size={16} className="text-primary-500" />
-                                Growth Limit
-                            </h4>
-                            <p className="text-xs text-gray-400">
-                                You are currently using the free tier which allows up to 50 employees.
-                                <Link to="/settings" className="text-primary-500 hover:text-primary-400 ml-1">Upgrade Plan</Link>
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

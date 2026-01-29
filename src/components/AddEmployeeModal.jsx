@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useDepartments } from '../context/DepartmentContext';
 
 export default function AddEmployeeModal({ isOpen, onClose, onAdd, initialData = null }) {
+    const { departments } = useDepartments();
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         role: '',
-        dept: 'Engineering',
+        dept: '',
         status: 'Active'
     });
 
     useEffect(() => {
+        const defaultDept = departments.length > 0 ? departments[0].name : '';
+
         if (initialData) {
             setFormData({
                 name: initialData.name || '',
                 email: initialData.email || '',
                 role: initialData.role || '',
-                dept: initialData.dept || 'Engineering',
+                dept: initialData.dept || defaultDept,
                 status: initialData.status || 'Active'
             });
         } else {
@@ -24,11 +29,11 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd, initialData =
                 name: '',
                 email: '',
                 role: '',
-                dept: 'Engineering',
+                dept: defaultDept,
                 status: 'Active'
             });
         }
-    }, [initialData, isOpen]);
+    }, [initialData, isOpen, departments]);
 
     if (!isOpen) return null;
 
@@ -80,13 +85,17 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd, initialData =
                                 value={formData.dept}
                                 onChange={(e) => setFormData({ ...formData, dept: e.target.value })}
                                 className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors appearance-none"
+                                required
                             >
-                                <option>Engineering</option>
-                                <option>Design</option>
-                                <option>Marketing</option>
-                                <option>Sales</option>
-                                <option>HR</option>
-                                <option>Finance</option>
+                                {departments.length === 0 ? (
+                                    <option value="">No departments available</option>
+                                ) : (
+                                    departments.map((dept) => (
+                                        <option key={dept.id} value={dept.name}>
+                                            {dept.name}
+                                        </option>
+                                    ))
+                                )}
                             </select>
                         </div>
                         <div>
