@@ -3,7 +3,7 @@ import { useAttendance } from '../context/AttendanceContext';
 import { useEmployees } from '../context/EmployeeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { CheckCircle, XCircle, Clock, Calendar, Download, Search } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Calendar, Download, Search, UserCheck } from 'lucide-react';
 
 export default function Attendance() {
     const { attendanceRecords, checkIn, checkOut, loading } = useAttendance();
@@ -76,7 +76,7 @@ export default function Attendance() {
 
     // Filter records
     const filteredRecords = attendanceRecords.filter(record => {
-        const matchesSearch = record.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = record.employeeName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
         return matchesSearch;
     });
 
@@ -188,8 +188,8 @@ export default function Attendance() {
                                     <td className="px-6 py-4 text-sm text-gray-300 font-mono">{record.checkOut || '-'}</td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${record.status === 'Check In'
-                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                            : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
                                             }`}>
                                             {record.status}
                                         </span>

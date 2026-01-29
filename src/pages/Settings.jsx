@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLocale } from '../context/LocaleContext';
 import { uploadToCloudinary } from '../services/cloudinary';
 import { User, Lock, Bell, Globe, Moon, Loader2, Camera, CheckCircle, Save, AlertTriangle } from 'lucide-react';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -13,6 +14,7 @@ export default function Settings() {
     const { currentUser, userData, updateUserProfile, changePassword } = useAuth();
     const { showToast } = useToast();
     const { theme, toggleTheme } = useTheme();
+    const { setLocale } = useLocale();
     const navigate = useNavigate();
 
     const [activeTab, setActiveTab] = useState('profile');
@@ -125,6 +127,13 @@ export default function Settings() {
                 'preferences.region': preferences.region,
                 'preferences.notifications': preferences.notifications
             });
+
+            // Immediately update the locale context so the language changes without reload
+            setLocale({
+                language: preferences.language,
+                region: preferences.region
+            });
+
             showToast('Preferences saved!', 'success');
         } catch (error) {
             console.error(error);
@@ -179,8 +188,8 @@ export default function Settings() {
                                     key={tab.id}
                                     onClick={() => { setActiveTab(tab.id); }}
                                     className={`flex items-center gap-3 px-4 py-3 font-medium text-sm transition-colors ${activeTab === tab.id
-                                            ? 'bg-primary-500/10 text-primary-500 border-l-2 border-primary-500'
-                                            : 'text-gray-400 hover:bg-dark-700 hover:text-white'
+                                        ? 'bg-primary-500/10 text-primary-500 border-l-2 border-primary-500'
+                                        : 'text-gray-400 hover:bg-dark-700 hover:text-white'
                                         }`}
                                 >
                                     <tab.icon size={18} />
@@ -390,9 +399,8 @@ export default function Settings() {
                                         onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value }))}
                                         className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
                                     >
-                                        <option value="en">English (US)</option>
-                                        <option value="es">Español</option>
-                                        <option value="fr">Français</option>
+                                        <option value="en">English</option>
+                                        <option value="ar">العربية (Arabic)</option>
                                     </select>
                                 </div>
                                 <div>
@@ -402,8 +410,8 @@ export default function Settings() {
                                         onChange={(e) => setPreferences(prev => ({ ...prev, region: e.target.value }))}
                                         className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
                                     >
-                                        <option value="US">United States (MM/DD/YYYY)</option>
-                                        <option value="UK">United Kingdom (DD/MM/YYYY)</option>
+                                        <option value="US">United States (MM/DD/YYYY, 12h)</option>
+                                        <option value="DZ">الجزائر - Algeria (DD/MM/YYYY, 24h)</option>
                                     </select>
                                 </div>
                                 <div className="pt-4">
@@ -427,8 +435,8 @@ export default function Settings() {
                                 <button
                                     onClick={() => toggleTheme('dark')}
                                     className={`p-4 rounded-xl border text-left transition-all ${theme === 'dark'
-                                            ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/50'
-                                            : 'border-dark-700 hover:bg-dark-700'
+                                        ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/50'
+                                        : 'border-dark-700 hover:bg-dark-700'
                                         }`}
                                 >
                                     <div className="w-full h-24 bg-dark-900 rounded-lg mb-3 border border-dark-700 relative overflow-hidden">
@@ -442,8 +450,8 @@ export default function Settings() {
                                 <button
                                     onClick={() => toggleTheme('light')}
                                     className={`p-4 rounded-xl border text-left transition-all ${theme === 'light'
-                                            ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/50'
-                                            : 'border-dark-700 hover:bg-dark-700'
+                                        ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/50'
+                                        : 'border-dark-700 hover:bg-dark-700'
                                         }`}
                                 >
                                     <div className="w-full h-24 bg-gray-100 rounded-lg mb-3 border border-gray-200 relative overflow-hidden">

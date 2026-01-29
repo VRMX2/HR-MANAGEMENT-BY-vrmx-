@@ -1,15 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, Settings, Bell, HelpCircle, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useLocale } from '../context/LocaleContext';
+import { db } from '../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { logout, currentUser } = useAuth();
     const { showToast } = useToast();
+    const { t } = useLocale();
     const active = location.pathname;
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    // Subscribe to unread notifications
+    useEffect(() => {
+        if (!currentUser) {
+            setUnreadCount(0);
+            return;
+        }
+
+        const q = query(
+            collection(db, 'notifications'),
+            where('read', '==', false)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setUnreadCount(snapshot.size);
+        });
+
+        return unsubscribe;
+    }, [currentUser]);
 
     const handleLogout = async () => {
         try {
@@ -22,18 +46,18 @@ export default function Sidebar() {
     };
 
     const menuItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: Users, label: 'Employees', badge: null, path: '/employees' },
-        { icon: Building2, label: 'Departments', path: '/departments' },
-        { icon: CalendarDays, label: 'Attendance', path: '/attendance' },
-        { icon: FileText, label: 'Documents', path: '/documents' },
-        { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+        { icon: LayoutDashboard, label: t('dashboard'), path: '/' },
+        { icon: Users, label: t('employees'), badge: null, path: '/employees' },
+        { icon: Building2, label: t('departments'), path: '/departments' },
+        { icon: CalendarDays, label: t('attendance'), path: '/attendance' },
+        { icon: FileText, label: t('documents'), path: '/documents' },
+        { icon: BarChart3, label: t('analytics'), path: '/analytics' },
     ];
 
     const settingsItems = [
-        { icon: Bell, label: 'Notifications', badge: 3, badgeColor: 'bg-red-500', path: '/notifications' },
-        { icon: Settings, label: 'Settings', path: '/settings' },
-        { icon: HelpCircle, label: 'Help Center', path: '/help' },
+        { icon: Bell, label: t('notifications'), badge: unreadCount > 0 ? unreadCount : null, badgeColor: 'bg-red-500', path: '/notifications' },
+        { icon: Settings, label: t('settings'), path: '/settings' },
+        { icon: HelpCircle, label: t('help'), path: '/help' },
     ];
 
     return (
@@ -45,7 +69,7 @@ export default function Sidebar() {
                 </div>
 
                 <div className="mb-6">
-                    <h2 className="text-xs font-semibold text-gray-500 mb-4 px-2 uppercase tracking-wider">Main Menu</h2>
+                    <h2 className="text-xs font-semibold text-gray-500 mb-4 px-2 uppercase tracking-wider">{t('mainMenu')}</h2>
                     <nav className="space-y-1">
                         {menuItems.map((item) => (
                             <Link
@@ -73,7 +97,7 @@ export default function Sidebar() {
                 </div>
 
                 <div>
-                    <h2 className="text-xs font-semibold text-gray-500 mb-4 px-2 uppercase tracking-wider">System</h2>
+                    <h2 className="text-xs font-semibold text-gray-500 mb-4 px-2 uppercase tracking-wider">{t('system')}</h2>
                     <nav className="space-y-1">
                         {settingsItems.map((item) => (
                             <Link
@@ -102,7 +126,7 @@ export default function Sidebar() {
                             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200 group mt-4"
                         >
                             <LogOut size={20} className="group-hover:text-red-400" />
-                            <span className="flex-1 text-left font-medium">Logout</span>
+                            <span className="flex-1 text-left font-medium">{t('logout')}</span>
                         </button>
                     </nav>
                 </div>

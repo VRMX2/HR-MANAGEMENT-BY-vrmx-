@@ -36,19 +36,19 @@ export default function RecentActivity() {
 
     // Mocking "attendance" activity from the context if it provides timestamps. 
     // If context only provides "today's" records, we use that.
-    // For now, let's assume attendanceRecords contains { employeeId, checkIn, date }
+    // For now, let's assume attendance contains { employeeId, checkIn, date }
 
-    const recentCheckIns = attendanceRecords
+    const recentCheckIns = (attendance || [])
         .slice(0, 5)
         .map(record => {
-            const emp = employees.find(e => e.id === record.employeeId);
+            const emp = employees.find(e => e.id === record.employeeId || e.id === record.uid);
             return {
                 id: `att-${record.id}`,
-                user: emp ? emp.name : 'Unknown Employee',
+                user: emp ? emp.name : record.name || record.employeeName || 'Unknown Employee',
                 action: 'checked in',
-                time: record.checkIn, // e.g., "09:00 AM"
-                timestamp: new Date().setHours(9, 0, 0), // Mock sorting for today
-                avatar: emp ? emp.avatar : '??',
+                time: record.checkIn || formatTime(record.timestamp), // e.g., "09:00 AM"
+                timestamp: record.timestamp ? new Date(record.timestamp).getTime() : new Date().getTime(),
+                avatar: emp ? emp.avatar : (record.name ? record.name.substring(0, 2).toUpperCase() : '??'),
                 color: 'bg-blue-600'
             };
         });

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, query, orderBy, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
+import { createAttendanceNotification } from '../services/notificationService';
 
 const AttendanceContext = createContext();
 
@@ -34,18 +35,23 @@ export function AttendanceProvider({ children }) {
     const markAttendance = async (status) => {
         if (!currentUser) return;
 
+        const employeeName = currentUser.displayName || currentUser.email.split('@')[0];
+
         await addDoc(collection(db, 'attendance'), {
             uid: currentUser.uid,
             email: currentUser.email,
-            name: currentUser.displayName || currentUser.email.split('@')[0],
+            name: employeeName,
             status,
             timestamp: new Date(),
             date: new Date().toLocaleDateString(),
             checkIn: status === 'Check In' ? new Date().toLocaleTimeString() : null,
             checkOut: status === 'Check Out' ? new Date().toLocaleTimeString() : null,
-            employeeName: currentUser.displayName || currentUser.email.split('@')[0], // Add for compatibility
+            employeeName: employeeName, // Add for compatibility
             employeeId: currentUser.uid // Add for compatibility
         });
+
+        // Create notification
+        await createAttendanceNotification('marked', employeeName, status);
     };
 
     // Compatibility wrappers

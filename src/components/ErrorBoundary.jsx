@@ -12,7 +12,7 @@ class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error('ErrorBoundary caught an error:', error, errorInfo);
-        this.state = { hasError: true, error, errorInfo };
+        this.setState({ hasError: true, error, errorInfo });
     }
 
     render() {
@@ -31,13 +31,13 @@ class ErrorBoundary extends React.Component {
                         </div>
 
                         <div className="bg-dark-900 rounded-lg p-4 mb-4">
-                            <p className="text-red-400 font-mono text-sm mb-2">
+                            <p className="text-white font-mono text-sm mb-2 whitespace-pre-wrap break-words">
                                 {this.state.error && this.state.error.toString()}
                             </p>
                             {this.state.errorInfo && (
-                                <details className="text-gray-500 text-xs">
-                                    <summary className="cursor-pointer hover:text-gray-400">Stack trace</summary>
-                                    <pre className="mt-2 overflow-auto">
+                                <details className="text-gray-400 text-xs mt-3">
+                                    <summary className="cursor-pointer hover:text-gray-300">Show stack trace</summary>
+                                    <pre className="mt-2 overflow-auto text-gray-500 whitespace-pre-wrap break-words">
                                         {this.state.errorInfo.componentStack}
                                     </pre>
                                 </details>
