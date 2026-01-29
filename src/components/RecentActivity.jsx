@@ -17,7 +17,8 @@ export default function RecentActivity() {
 
     // Let's mix in "New Hires" from employees list based on 'createdAt' or 'joined' date.
 
-    const recentHires = employees
+    // Use spread syntax to create a copy before sorting to avoid mutating state
+    const recentHires = [...employees]
         .sort((a, b) => new Date(b.joined) - new Date(a.joined))
         .slice(0, 3)
         .map(emp => ({

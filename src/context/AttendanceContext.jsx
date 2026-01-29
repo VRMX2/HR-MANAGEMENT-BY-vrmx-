@@ -32,22 +32,42 @@ export function AttendanceProvider({ children }) {
     }, [currentUser]);
 
     const markAttendance = async (status) => {
-        // Check if checks in/out today already exist for this user? 
-        // For simplicity, just adding a log.
         if (!currentUser) return;
 
         await addDoc(collection(db, 'attendance'), {
             uid: currentUser.uid,
             email: currentUser.email,
-            name: currentUser.displayName || currentUser.email.split('@')[0], // Fallback name
-            status, // 'Check In' or 'Check Out'
+            name: currentUser.displayName || currentUser.email.split('@')[0],
+            status,
             timestamp: new Date(),
-            date: new Date().toLocaleDateString()
+            date: new Date().toLocaleDateString(),
+            checkIn: status === 'Check In' ? new Date().toLocaleTimeString() : null,
+            checkOut: status === 'Check Out' ? new Date().toLocaleTimeString() : null,
+            employeeName: currentUser.displayName || currentUser.email.split('@')[0], // Add for compatibility
+            employeeId: currentUser.uid // Add for compatibility
         });
     };
 
+    // Compatibility wrappers
+    const attendanceRecords = attendance;
+
+    const checkIn = async (empId, email, name) => {
+        await markAttendance('Check In');
+    };
+
+    const checkOut = async (empId, email, recordId) => {
+        await markAttendance('Check Out');
+    };
+
     return (
-        <AttendanceContext.Provider value={{ attendance, markAttendance, loading }}>
+        <AttendanceContext.Provider value={{
+            attendance,
+            attendanceRecords, // Export alias
+            markAttendance,
+            checkIn, // Export wrapper
+            checkOut, // Export wrapper
+            loading
+        }}>
             {children}
         </AttendanceContext.Provider>
     );

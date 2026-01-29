@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 import { uploadToCloudinary } from '../services/cloudinary';
 import { User, Lock, Bell, Globe, Moon, Loader2, Camera, CheckCircle, Save, AlertTriangle } from 'lucide-react';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { deleteUser } from 'firebase/auth'; // Import deleteUser
+import { db, auth } from '../firebase'; // Import auth
+import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {
     const { currentUser, userData, updateUserProfile, changePassword } = useAuth();
     const { showToast } = useToast();
+    const { theme, toggleTheme } = useTheme();
+    const navigate = useNavigate();
+
     const [activeTab, setActiveTab] = useState('profile');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -23,6 +29,7 @@ export default function Settings() {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     // Preferences State
+    // We initialize these from userData but we can also rely on ThemeContext for theme.
     const [preferences, setPreferences] = useState({
         language: 'en',
         region: 'US',
@@ -30,8 +37,7 @@ export default function Settings() {
             email: true,
             push: true,
             updates: false
-        },
-        theme: 'dark'
+        }
     });
 
     useEffect(() => {
@@ -43,9 +49,10 @@ export default function Settings() {
         }
         if (userData) {
             setBio(userData.bio || '');
-            // Merge saved preferences if they exist
             if (userData.preferences) {
-                setPreferences(prev => ({ ...prev, ...userData.preferences }));
+                // Exclude theme from here since it's handled by context, but we want other prefs
+                const { theme, ...otherPrefs } = userData.preferences;
+                setPreferences(prev => ({ ...prev, ...otherPrefs }));
             }
         }
     }, [currentUser, userData]);
@@ -54,7 +61,6 @@ export default function Settings() {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Show preview immediately
         const reader = new FileReader();
         reader.onloadend = () => {
             setAvatarPreview(reader.result);
@@ -112,10 +118,12 @@ export default function Settings() {
     const handlePreferenceSave = async () => {
         setIsLoading(true);
         try {
-            // Save specific preference to Firestore user doc
             const userRef = doc(db, 'users', currentUser.uid);
             await updateDoc(userRef, {
-                preferences: preferences
+                // We merge with existing preferences, ensuring we don't overwrite theme
+                'preferences.language': preferences.language,
+                'preferences.region': preferences.region,
+                'preferences.notifications': preferences.notifications
             });
             showToast('Preferences saved!', 'success');
         } catch (error) {
@@ -125,9 +133,27 @@ export default function Settings() {
         setIsLoading(false);
     };
 
-    const handleDeactivate = () => {
-        if (window.confirm("CRITICAL WARNING: This will permanently delete your account and all associated data. Are you absolutely sure?")) {
-            showToast("Account deactivation simulated. (Backend not connected)", "info");
+    const handleDeactivate = async () => {
+        if (window.confirm("CRITICAL WARNING: This will permanently delete your account. This action CANNOT be undone. Are you absolutely sure?")) {
+            setIsLoading(true);
+            try {
+                const uid = currentUser.uid;
+                // 1. Delete Firestore User Doc
+                await deleteDoc(doc(db, 'users', uid));
+                // 2. Delete Auth User
+                await deleteUser(currentUser);
+
+                showToast("Account deleted. Goodbye.", "info");
+                navigate('/login');
+            } catch (error) {
+                console.error("Delete Error", error);
+                if (error.code === 'auth/requires-recent-login') {
+                    showToast("For security, please logout and login again to delete account.", "error");
+                } else {
+                    showToast("Failed to delete account. Contact support.", "error");
+                }
+            }
+            setIsLoading(false);
         }
     };
 
@@ -140,7 +166,7 @@ export default function Settings() {
     ];
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto pb-10">
             <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
 
             <div className="flex flex-col md:flex-row gap-8">
@@ -168,7 +194,7 @@ export default function Settings() {
                 {/* Content */}
                 <div className="flex-1 space-y-6">
                     {activeTab === 'profile' && (
-                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6">
+                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6 animate-fade-in">
                             <h2 className="text-lg font-bold text-white mb-6">Profile Information</h2>
 
                             <div className="flex items-center gap-6 mb-8">
@@ -202,7 +228,7 @@ export default function Settings() {
                                             type="text"
                                             value={firstName}
                                             onChange={(e) => setFirstName(e.target.value)}
-                                            className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                                            className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 placeholder-gray-600"
                                         />
                                     </div>
                                     <div>
@@ -211,7 +237,7 @@ export default function Settings() {
                                             type="text"
                                             value={lastName}
                                             onChange={(e) => setLastName(e.target.value)}
-                                            className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                                            className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 placeholder-gray-600"
                                         />
                                     </div>
                                 </div>
@@ -227,7 +253,7 @@ export default function Settings() {
                                         rows="4"
                                         value={bio}
                                         onChange={(e) => setBio(e.target.value)}
-                                        className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                                        className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 placeholder-gray-600"
                                         placeholder="Tell us about yourself..."
                                     ></textarea>
                                 </div>
@@ -247,7 +273,7 @@ export default function Settings() {
                     )}
 
                     {activeTab === 'security' && (
-                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6">
+                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6 animate-fade-in">
                             <h2 className="text-lg font-bold text-white mb-6">Security Settings</h2>
                             <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
                                 <div>
@@ -256,7 +282,7 @@ export default function Settings() {
                                         type="password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                                        className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 placeholder-gray-600"
                                         placeholder="Enter new password"
                                     />
                                 </div>
@@ -266,7 +292,7 @@ export default function Settings() {
                                         type="password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                                        className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 placeholder-gray-600"
                                         placeholder="Confirm new password"
                                     />
                                 </div>
@@ -289,14 +315,14 @@ export default function Settings() {
                                 </h3>
                                 <div className="p-4 border border-red-500/20 bg-red-500/10 rounded-lg flex items-center justify-between">
                                     <div>
-                                        <h4 className="text-red-500 font-bold mb-1">Deactivate Account</h4>
+                                        <h4 className="text-red-500 font-bold mb-1">Delete Account</h4>
                                         <p className="text-sm text-red-400/70">Permanently remove your account and all data.</p>
                                     </div>
                                     <button
                                         onClick={handleDeactivate}
                                         className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
                                     >
-                                        Deactivate
+                                        Delete Account
                                     </button>
                                 </div>
                             </div>
@@ -304,7 +330,7 @@ export default function Settings() {
                     )}
 
                     {activeTab === 'notifications' && (
-                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6">
+                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6 animate-fade-in">
                             <h2 className="text-lg font-bold text-white mb-6">Notification Preferences</h2>
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
@@ -322,7 +348,23 @@ export default function Settings() {
                                         <div className="w-11 h-6 bg-dark-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
                                     </label>
                                 </div>
-                                {/* More toggles... */}
+
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-white font-medium">Push Notifications</h3>
+                                        <p className="text-sm text-gray-400">Receive real-time updates in the browser.</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={preferences.notifications.push}
+                                            onChange={(e) => setPreferences(prev => ({ ...prev, notifications: { ...prev.notifications, push: e.target.checked } }))}
+                                        />
+                                        <div className="w-11 h-6 bg-dark-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                                    </label>
+                                </div>
+
                                 <div className="pt-4 flex justify-end">
                                     <button
                                         onClick={handlePreferenceSave}
@@ -338,7 +380,7 @@ export default function Settings() {
                     )}
 
                     {activeTab === 'region' && (
-                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6">
+                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6 animate-fade-in">
                             <h2 className="text-lg font-bold text-white mb-6">Language & Region</h2>
                             <div className="space-y-4 max-w-md">
                                 <div>
@@ -379,34 +421,38 @@ export default function Settings() {
                     )}
 
                     {activeTab === 'appearance' && (
-                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6">
+                        <div className="bg-dark-800 rounded-xl border border-dark-700 p-6 animate-fade-in">
                             <h2 className="text-lg font-bold text-white mb-6">Appearance</h2>
                             <div className="grid grid-cols-2 gap-4 max-w-lg">
                                 <button
-                                    onClick={() => setPreferences(prev => ({ ...prev, theme: 'dark' }))}
-                                    className={`p-4 rounded-xl border text-left ${preferences.theme === 'dark' ? 'border-primary-500 bg-primary-500/10' : 'border-dark-700 hover:bg-dark-700'}`}
+                                    onClick={() => toggleTheme('dark')}
+                                    className={`p-4 rounded-xl border text-left transition-all ${theme === 'dark'
+                                            ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/50'
+                                            : 'border-dark-700 hover:bg-dark-700'
+                                        }`}
                                 >
-                                    <div className="w-full h-24 bg-dark-900 rounded-lg mb-3 border border-dark-700"></div>
+                                    <div className="w-full h-24 bg-dark-900 rounded-lg mb-3 border border-dark-700 relative overflow-hidden">
+                                        <div className="absolute inset-x-0 top-0 h-2 bg-primary-500"></div>
+                                        <div className="absolute top-4 left-4 right-4 h-2 bg-dark-700 rounded"></div>
+                                        <div className="absolute top-8 left-4 w-1/2 h-2 bg-dark-700 rounded"></div>
+                                    </div>
                                     <span className="font-medium text-white block">Dark Mode</span>
-                                    <span className="text-xs text-gray-500">Default for high contrast</span>
+                                    <span className="text-xs text-gray-500">Easier on the eyes</span>
                                 </button>
                                 <button
-                                    onClick={() => setPreferences(prev => ({ ...prev, theme: 'light' }))}
-                                    className={`p-4 rounded-xl border text-left ${preferences.theme === 'light' ? 'border-primary-500 bg-primary-500/10' : 'border-dark-700 hover:bg-dark-700'}`}
+                                    onClick={() => toggleTheme('light')}
+                                    className={`p-4 rounded-xl border text-left transition-all ${theme === 'light'
+                                            ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/50'
+                                            : 'border-dark-700 hover:bg-dark-700'
+                                        }`}
                                 >
-                                    <div className="w-full h-24 bg-gray-100 rounded-lg mb-3 border border-gray-200"></div>
+                                    <div className="w-full h-24 bg-gray-100 rounded-lg mb-3 border border-gray-200 relative overflow-hidden">
+                                        <div className="absolute inset-x-0 top-0 h-2 bg-primary-500"></div>
+                                        <div className="absolute top-4 left-4 right-4 h-2 bg-gray-300 rounded"></div>
+                                        <div className="absolute top-8 left-4 w-1/2 h-2 bg-gray-300 rounded"></div>
+                                    </div>
                                     <span className="font-medium text-white block">Light Mode</span>
-                                    <span className="text-xs text-gray-500">Clean and bright (coming soon)</span>
-                                </button>
-                            </div>
-                            <div className="pt-6">
-                                <button
-                                    onClick={handlePreferenceSave}
-                                    className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-500/20 flex items-center gap-2"
-                                >
-                                    {isLoading && <Loader2 size={18} className="animate-spin" />}
-                                    <Save size={18} />
-                                    Save Setting
+                                    <span className="text-xs text-gray-500">Clean and bright</span>
                                 </button>
                             </div>
                         </div>

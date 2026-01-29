@@ -3,7 +3,37 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Dark Mode (Default) */
+    --color-dark-900: 0 0 0;
+    /* #000000 */
+    --color-dark-800: 20 20 20;
+    /* #141414 */
+    --color-dark-700: 31 31 31;
+    /* #1f1f1f */
+
+    --color-text-white: 255 255 255;
+    /* #ffffff */
+    --color-text-gray-400: 156 163 175;
+    /* #9ca3af */
+  }
+
+  .light-mode {
+    /* Light Mode Overrides */
+    --color-dark-900: 243 244 246;
+    /* gray-100 #f3f4f6 */
+    --color-dark-800: 255 255 255;
+    /* white #ffffff */
+    --color-dark-700: 229 231 235;
+    /* gray-200 #e5e7eb */
+
+    --color-text-white: 17 24 39;
+    /* gray-900 #111827 - Main Text flips to black */
+    --color-text-gray-400: 75 85 99;
+    /* gray-600 #4b5563 - Muted text gets darker */
+  }
+
   body {
-    @apply bg-dark-900 text-white font-sans antialiased;
+    @apply bg-dark-900 text-white font-sans antialiased transition-colors duration-300;
   }
 }
