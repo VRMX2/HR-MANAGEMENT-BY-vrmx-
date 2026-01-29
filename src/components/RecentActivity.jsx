@@ -1,11 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAttendance } from '../context/AttendanceContext';
 import { useEmployees } from '../context/EmployeeContext';
+import { useAttendance } from '../context/AttendanceContext';
+import { useLocale } from '../context/LocaleContext';
+import { UserPlus, LogIn, LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function RecentActivity() {
-    const { attendanceRecords } = useAttendance();
     const { employees } = useEmployees();
+    const { attendance } = useAttendance();
+    const { formatDate, formatTime } = useLocale();
 
     // 1. Map Attendance Check-ins
     // Assuming attendanceRecords structure has { employeeName, checkInTime, id }
@@ -77,7 +80,9 @@ export default function RecentActivity() {
                                 <p className="text-sm text-gray-300">
                                     <span className="font-semibold text-white">{activity.user}</span> {activity.action}
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                                <div className="text-xs text-gray-500">
+                                    {activity.timestamp ? formatTime(activity.timestamp) : activity.time}
+                                </div>
                             </div>
                         </div>
                     ))
