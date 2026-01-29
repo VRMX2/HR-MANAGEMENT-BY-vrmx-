@@ -98,7 +98,7 @@ export default function HelpCenter() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto pb-10">
+        <div className="max-w-4xl mx-auto pb-10 animate-slide-up">
             <div className="text-center mb-12">
                 <h1 className="text-3xl font-bold text-white mb-4">How can we help you?</h1>
                 <div className="max-w-xl mx-auto relative">
@@ -122,14 +122,14 @@ export default function HelpCenter() {
                 <div
                     className="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary-500/50 transition-colors cursor-pointer group"
                     onClick={() => {
-                        showToast('Documentation coming soon!', 'info');
+                        window.open('https://github.com/vrmx/hr-management-docs', '_blank');
                     }}
                 >
                     <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                         <Book size={24} />
                     </div>
                     <h3 className="text-lg font-bold text-white mb-2">Documentation</h3>
-                    <p className="text-gray-400 text-sm">Detailed guides and articles about all features.</p>
+                    <p className="text-gray-400 text-sm">Read the full user guide and API docs.</p>
                 </div>
 
                 <div

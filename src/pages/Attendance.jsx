@@ -4,6 +4,7 @@ import { useEmployees } from '../context/EmployeeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { CheckCircle, XCircle, Clock, Calendar, Download, Search, UserCheck } from 'lucide-react';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export default function Attendance() {
     const { attendanceRecords, checkIn, checkOut, loading } = useAttendance();
@@ -21,18 +22,27 @@ export default function Attendance() {
     // Assuming currentUser.email matches employee email for linking (demo logic)
     const todayStr = new Date().toLocaleDateString();
 
+    // Helper to normalize email for comparison
+    const normalize = (email) => email ? email.toLowerCase().trim() : '';
+
     const myTodayRecord = attendanceRecords.find(r =>
-        r.email === currentUser?.email && r.date === todayStr
+        normalize(r.email) === normalize(currentUser?.email) && r.date === todayStr
     );
 
     const isCheckedIn = !!(myTodayRecord && myTodayRecord.status === 'Check In');
 
     const handleCheckInOut = async () => {
-        // Need to find my employee ID first
-        const myEmployeeProfile = employees.find(e => e.email === currentUser?.email);
+        if (!employees || employees.length === 0) {
+            showToast('Loading employee data...', 'info');
+            return;
+        }
+
+        // Robust matching
+        const myEmployeeProfile = employees.find(e => normalize(e.email) === normalize(currentUser?.email));
 
         if (!myEmployeeProfile) {
-            alert("Your account is not linked to an employee profile. Please ask an admin to add you as an employee with email: " + currentUser?.email);
+            console.error(`Link Error: User email (${currentUser?.email}) not found in employee list.`);
+            showToast("Your account is not linked to an employee profile. Please contact an HR admin.", "error");
             return;
         }
 
@@ -41,9 +51,6 @@ export default function Attendance() {
                 await checkOut(myEmployeeProfile.id, myEmployeeProfile.email, myTodayRecord.id);
                 showToast('Checked out successfully', 'success');
             } else {
-                // If already marked "Present" (checked out), prevent duplicate check-in or allow re-entry?
-                // For now, if "Present", we hide buttons or show "Completed".
-                // But simplified logic: Button shows Check In if not "Check In".
                 if (myTodayRecord && myTodayRecord.status === 'Present') {
                     showToast('You have already completed attendance for today.', 'info');
                     return;
@@ -52,11 +59,32 @@ export default function Attendance() {
                 showToast('Checked in successfully', 'success');
             }
         } catch (error) {
-            showToast('Attendance action failed', 'error');
+            console.error(error);
+            showToast('Attendance action failed: ' + error.message, 'error');
         }
     };
 
-    // ... (export logic) ...
+    const handleExport = () => {
+        try {
+            const headers = ['Employee,Date,Check In,Check Out,Status'];
+            const csvContent = filteredRecords.map(r =>
+                `${r.employeeName || ''},${r.date || ''},${r.checkIn || ''},${r.checkOut || ''},${r.status || ''}`
+            ).join('\n');
+
+            const blob = new Blob([headers.join('\n') + '\n' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `attendance_${todayStr.replace(/\//g, '-')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Export successful', 'success');
+        } catch (err) {
+            console.error('Export error:', err);
+            showToast('Failed to export CSV', 'error');
+        }
+    };
 
     // Filter records
     const filteredRecords = attendanceRecords.filter(record => {
@@ -67,10 +95,40 @@ export default function Attendance() {
     // Helper to check if completed
     const isCompleted = !!(myTodayRecord && myTodayRecord.status === 'Present');
 
-    if (loading) return <div className="text-white">Loading attendance...</div>;
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <Skeleton className="h-8 w-48 mb-2" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                    <div className="flex gap-3">
+                        <Skeleton className="h-10 w-32" />
+                        <Skeleton className="h-10 w-32" />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <Skeleton className="h-32 w-full rounded-xl" />
+                    <Skeleton className="h-32 w-full rounded-xl" />
+                    <Skeleton className="h-32 w-full rounded-xl" />
+                </div>
+                <div className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
+                    <div className="p-4 border-b border-dark-700">
+                        <Skeleton className="h-6 w-32" />
+                    </div>
+                    <div className="p-4 space-y-4">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <Skeleton key={i} className="h-12 w-full" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div>
+        <div className="animate-slide-up">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-white mb-2">Attendance</h1>

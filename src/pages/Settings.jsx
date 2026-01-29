@@ -175,7 +175,7 @@ export default function Settings() {
     ];
 
     return (
-        <div className="max-w-4xl mx-auto pb-10">
+        <div className="max-w-4xl mx-auto pb-10 animate-slide-up">
             <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
 
             <div className="flex flex-col md:flex-row gap-8">

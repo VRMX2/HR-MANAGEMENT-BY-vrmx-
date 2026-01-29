@@ -23,98 +23,102 @@ import { ThemeProvider } from './context/ThemeContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { EventProvider } from './context/EventContext';
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
     return (
-        <Router>
-            <AuthProvider>
-                <ToastProvider>
-                    <ThemeProvider>
-                        <LocaleProvider>
-                            <SearchProvider>
-                                <DepartmentProvider>
-                                    <EmployeeProvider>
-                                        <AttendanceProvider>
-                                            <DocumentProvider>
-                                                <EventProvider>
-                                                    <Routes>
-                                                        <Route path="/login" element={<Login />} />
-                                                        <Route path="/" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Dashboard />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/employees" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Employees />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/departments" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Departments />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/attendance" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Attendance />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/documents" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Documents />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/analytics" element={
-                                                            <ProtectedRoute allowedRoles={['ADMIN']}>
-                                                                <DashboardLayout>
-                                                                    <Analytics />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/notifications" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Notifications />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/settings" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <Settings />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        <Route path="/help" element={
-                                                            <ProtectedRoute>
-                                                                <DashboardLayout>
-                                                                    <HelpCenter />
-                                                                </DashboardLayout>
-                                                            </ProtectedRoute>
-                                                        } />
-                                                        {/* Catch all redirect */}
-                                                        <Route path="*" element={<Navigate to="/" replace />} />
-                                                    </Routes>
-                                                </EventProvider>
-                                            </DocumentProvider>
-                                        </AttendanceProvider>
-                                    </EmployeeProvider>
-                                </DepartmentProvider>
-                            </SearchProvider>
-                        </LocaleProvider>
-                    </ThemeProvider>
-                </ToastProvider>
-            </AuthProvider>
-        </Router>
+        <ErrorBoundary>
+            <Router>
+                <AuthProvider>
+                    <ToastProvider>
+                        <ThemeProvider>
+                            <LocaleProvider>
+                                <SearchProvider>
+                                    <DepartmentProvider>
+                                        <EmployeeProvider>
+                                            <AttendanceProvider>
+                                                <DocumentProvider>
+                                                    <EventProvider>
+                                                        <Routes>
+                                                            <Route path="/login" element={<Login />} />
+                                                            <Route path="/" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Dashboard />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/employees" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Employees />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/departments" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Departments />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/attendance" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Attendance />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/documents" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Documents />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/analytics" element={
+                                                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                                                    <DashboardLayout>
+                                                                        <Analytics />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/notifications" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Notifications />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/settings" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Settings />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/help" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <HelpCenter />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            {/* Catch all redirect */}
+                                                            <Route path="*" element={<Navigate to="/" replace />} />
+                                                        </Routes>
+                                                    </EventProvider>
+                                                </DocumentProvider>
+                                            </AttendanceProvider>
+                                        </EmployeeProvider>
+                                    </DepartmentProvider>
+                                </SearchProvider>
+                            </LocaleProvider>
+                        </ThemeProvider>
+                    </ToastProvider>
+                </AuthProvider>
+            </Router>
+        </ErrorBoundary>
     );
 }
 

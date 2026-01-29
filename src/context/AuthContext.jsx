@@ -27,8 +27,22 @@ export function AuthProvider({ children }) {
 
     const googleProvider = new GoogleAuthProvider();
 
-    function signup(email, password) {
-        return createUserWithEmailAndPassword(auth, email, password);
+    async function signup(email, password) {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+
+        // Create user document immediately
+        await setDoc(doc(db, 'users', user.uid), {
+            email: user.email,
+            role: 'USER', // Default role
+            createdAt: new Date(),
+            lastLogin: new Date(),
+            displayName: user.displayName || '',
+            photoURL: user.photoURL || '',
+            isActive: true
+        });
+
+        return result;
     }
 
     function login(email, password) {

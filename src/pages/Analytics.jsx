@@ -5,10 +5,14 @@ import { useAttendance } from '../context/AttendanceContext';
 import { Users, Building2, TrendingUp, UserMinus, UserCheck, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { Skeleton } from '../components/ui/Skeleton';
+
 export default function Analytics() {
-    const { employees } = useEmployees();
-    const { departments } = useDepartments();
-    const { attendance } = useAttendance();
+    const { employees, loading: empLoading } = useEmployees();
+    const { departments, loading: deptLoading } = useDepartments();
+    const { attendance, loading: attLoading } = useAttendance();
+
+    const loading = empLoading || deptLoading || attLoading;
 
     // -- Real Data Calculations --
 
@@ -58,15 +62,69 @@ export default function Analytics() {
         return dist;
     }, [employees]);
 
+    const handleExport = () => {
+        const headers = ['Department', 'Employee Count'];
+        const rows = deptData.map(d => [d.name, d.count]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "analytics_report.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    if (loading) {
+        return (
+            <div className="space-y-8">
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <Skeleton className="h-8 w-64 mb-2" />
+                        <Skeleton className="h-4 w-96" />
+                    </div>
+                    <Skeleton className="h-10 w-32" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="bg-dark-800 p-6 rounded-xl border border-dark-700">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <Skeleton className="h-4 w-24 mb-2" />
+                                    <Skeleton className="h-8 w-16" />
+                                </div>
+                                <Skeleton className="h-10 w-10 rounded-lg" />
+                            </div>
+                            <Skeleton className="h-4 w-32" />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Skeleton className="h-80 w-full rounded-xl" />
+                    <Skeleton className="h-80 w-full rounded-xl" />
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div>
+        <div className="animate-slide-up">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-white mb-2">Analytics Dashboard</h1>
                     <p className="text-gray-400">Real-time overview of your organization's metrics.</p>
                 </div>
-                <button className="bg-dark-800 hover:bg-dark-700 text-white px-4 py-2 rounded-lg border border-dark-700 transition-colors text-sm font-medium">
-                    Export Report
+                <button
+                    onClick={handleExport}
+                    className="bg-dark-800 hover:bg-dark-700 text-white px-4 py-2 rounded-lg border border-dark-700 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                    <TrendingUp size={16} /> Export Report
                 </button>
             </div>
 

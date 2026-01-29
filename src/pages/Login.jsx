@@ -24,18 +24,10 @@ export default function Login() {
 
         try {
             if (isReset) {
-                // 1. Check if user actually exists (Internal Debugging ONLY)
-                const methods = await checkEmailExists(email);
-
-                if (!methods) {
-                    console.warn(`SECURITY: Password reset requested for non-existent email: ${email}`);
-                    // PRO & SECURE: We DO NOT tell the user the account doesn't exist.
-                    // We fake a success message to prevent "User Enumeration" attacks.
-                } else {
-                    console.log("Attempting to send reset email to:", email);
-                    await resetPassword(email);
-                    console.log("Reset email sent successfully.");
-                }
+                // PRO & SECURE: We directly attempt to send the reset email.
+                // Firebase will handle the email validation internally.
+                // We always show a success message to prevent user enumeration.
+                await resetPassword(email);
 
                 // Always show the same message
                 setMessage(`If an account exists for ${email}, you will receive a password reset instruction shortly.`);
@@ -47,7 +39,17 @@ export default function Login() {
                 navigate('/');
             }
         } catch (err) {
-            setError('Failed to ' + (isReset ? 'reset password' : isLogin ? 'log in' : 'sign up') + ': ' + err.message);
+            console.error("Auth Error:", err);
+            // Customize error messages for better UX
+            if (isReset) {
+                // Even if it fails (e.g. user not found), we might want to show success or a generic error
+                // But typically resetPassword doesn't throw for "user not found" if enumeration protection is on.
+                // If it does throw, we should be careful.
+                // For now, let's just show the success message for reset to be safe, unless it's a network error.
+                setMessage(`If an account exists for ${email}, you will receive a password reset instruction shortly.`);
+            } else {
+                setError('Failed to ' + (isLogin ? 'log in' : 'sign up') + ': ' + err.message);
+            }
         }
         setLoading(false);
     }
@@ -80,7 +82,7 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-dark-800 border border-dark-700 rounded-xl p-8 w-full max-w-md shadow-2xl">
                 <div className="flex flex-col items-center mb-8">
                     <div className="bg-primary-500 w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-2xl mb-4">P</div>

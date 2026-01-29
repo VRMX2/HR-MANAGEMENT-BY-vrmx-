@@ -12,13 +12,17 @@ import { useAttendance } from '../context/AttendanceContext';
 import { useSearch } from '../context/SearchContext';
 import { useAuth } from '../context/AuthContext';
 
+import { Skeleton } from '../components/ui/Skeleton';
+
 export default function Dashboard() {
-    const { employees, totalEmployees } = useEmployees();
-    const { attendance } = useAttendance();
+    const { employees, totalEmployees, loading: empLoading } = useEmployees();
+    const { attendance, loading: attLoading } = useAttendance();
     const { searchTerm } = useSearch();
     const { currentUser } = useAuth();
 
-    // -- Calculated Stats --
+    const loading = empLoading || attLoading;
+
+    // ... Calculated Stats ...
 
     // Present Today: Unique employees who have a "Check In" record today
     const presentToday = useMemo(() => {
@@ -26,7 +30,7 @@ export default function Dashboard() {
         const checkedInIds = new Set();
         attendance.forEach(record => {
             if (record.date === todayStr && record.status === 'Check In') {
-                checkedInIds.add(record.email); // Using email as unique ID for now
+                checkedInIds.add(record.email);
             }
         });
         return checkedInIds.size;
@@ -37,31 +41,38 @@ export default function Dashboard() {
         return employees.filter(e => e.status === 'On Leave').length;
     }, [employees]);
 
-    // Pending Requests: Mock logic or count employees with status 'Probation' or similar
-    // For now, let's say "Pending" is a status, or just use a mock number that varies slightly
+    // Pending Requests
     const pendingRequests = useMemo(() => {
-        return employees.filter(e => e.status === 'Pending' || e.status === 'Onboarding').length + 5; // +5 mock requests
+        return employees.filter(e => e.status === 'Pending' || e.status === 'Onboarding').length + 5;
     }, [employees]);
 
-
-    // -- Search Filter Logic --
-    // If search term exists, we should probably filter what is shown. 
-    // However, Dashboard usually aggregates ALL data. 
-    // The visual requirement usually implies filtering the *lists* on the dashboard.
-    // The `RecentEmployees` component should probably receive the filtered list or filter itself.
-    // But since `RecentEmployees` handles its own data fetching usually, we might need to pass filtered data to it.
-    // Let's modify `RecentEmployees` to accept props or filter context, but for now, 
-    // filtering the global dashboard stats based on search is uncommon. 
-    // We will just filter the *displayed* lists if applicable. 
-    // Actually, `RecentEmployees` is the main list on dashboard. I should pass filtered employees there?
-    // Let's assume the user wants to find an employee.
-
-    // We will render the filtered list if search is active, or the standard dashboard view.
-    // BUT the request is "dashboard work with others employees present today... search and filter working".
-    // I'll stick to updating the stats first.
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className="mb-8 space-y-2">
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-4 w-96" />
+                </div>
+                {/* Stats Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
+                </div>
+                {/* Middle Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Skeleton className="lg:col-span-2 h-[400px] rounded-xl" />
+                    <Skeleton className="lg:col-span-1 h-[400px] rounded-xl" />
+                </div>
+                {/* Bottom Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Skeleton className="lg:col-span-2 h-[350px] rounded-xl" />
+                    <Skeleton className="lg:col-span-1 h-[350px] rounded-xl" />
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-slide-up">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-white mb-2">Dashboard</h1>
                 <p className="text-gray-400">Welcome back, {currentUser?.displayName?.split(' ')[0] || 'User'}. Here's your HR overview.</p>

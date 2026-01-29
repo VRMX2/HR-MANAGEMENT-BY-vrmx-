@@ -3,6 +3,7 @@ import { useDocuments } from '../context/DocumentContext';
 import { useSearch } from '../context/SearchContext';
 import { useToast } from '../context/ToastContext';
 import { FileText, Upload, Trash2, File, Image as ImageIcon, FileSpreadsheet, MoreVertical, Download, Search } from 'lucide-react';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export default function Documents() {
     const { documents, uploadDocument, deleteDocument, loading } = useDocuments();
@@ -69,10 +70,37 @@ export default function Documents() {
         }
     };
 
-    if (loading) return <div className="text-white">Loading documents...</div>;
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <Skeleton className="h-8 w-48 mb-2" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                    <Skeleton className="h-10 w-40" />
+                </div>
+                <Skeleton className="h-10 w-full max-w-md mb-6" />
+                <div className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
+                    <div className="p-4 border-b border-dark-700">
+                        <div className="flex gap-4">
+                            <Skeleton className="h-6 w-24" />
+                            <Skeleton className="h-6 w-24" />
+                            <Skeleton className="h-6 w-24" />
+                        </div>
+                    </div>
+                    <div className="p-4 space-y-4">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <Skeleton key={i} className="h-16 w-full" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <div>
+        <div className="animate-slide-up">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-white mb-2">Documents</h1>

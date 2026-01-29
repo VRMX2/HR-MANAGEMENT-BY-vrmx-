@@ -4,6 +4,8 @@ import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, updateDoc, deleteDoc, doc, addDoc, where } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
+import { Skeleton } from '../components/ui/Skeleton';
+
 export default function Notifications() {
     const [notifications, setNotifications] = useState([]);
     const { currentUser } = useAuth();
@@ -86,10 +88,36 @@ export default function Notifications() {
         return `${Math.floor(diffInSeconds / 86400)} days ago`;
     };
 
-    if (loading) return <div className="text-white">Loading notifications...</div>;
+    if (loading) {
+        return (
+            <div className="max-w-4xl mx-auto space-y-6">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <Skeleton className="h-8 w-48 mb-2" />
+                        <Skeleton className="h-4 w-72" />
+                    </div>
+                    <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="space-y-4">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-dark-700 bg-dark-800">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <div className="flex-1 space-y-2">
+                                <div className="flex justify-between">
+                                    <Skeleton className="h-5 w-1/3" />
+                                    <Skeleton className="h-4 w-20" />
+                                </div>
+                                <Skeleton className="h-4 w-2/3" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto animate-slide-up">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-white mb-2">Notifications</h1>

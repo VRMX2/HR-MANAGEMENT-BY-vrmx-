@@ -2,61 +2,79 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if user is authenticated
+    // --- Helper Functions ---
+    
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Helper function to check if user is admin
-    // Assumes custom claim 'admin' or a field 'role' in the user's document
-    function isAdmin() {
-      return isAuthenticated() && 
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
-    }
-
-    // Helper function to check if user is accessing their own data
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
+    
+    // Check if user has 'ADMIN' role in their user profile
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
 
     // --- Users Collection ---
-    // Users can read their own profile.
-    // Only users themselves or admins can update their profile.
     match /users/{userId} {
-      allow read: if isAuthenticated(); // Allow reading other users for collaboration (e.g. checking attendee name)
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isOwner(userId) || isAdmin();
+      // Anyone auth'd can read (needed for checking roles/collaborating)
+      allow read: if isAuthenticated();
+      
+      // Users can create their own profile (happens during signup)
+      // They cannot set themselves as ADMIN during creation unless already admin (which is impossible on creation)
+      // So we must rely on default values or Cloud Functions for strictly secure role assignment. 
+      // For this client-side only app: verify 'role' is not being set to 'ADMIN' on create if not admin.
+      allow create: if isAuthenticated() && request.auth.uid == userId &&
+         (!request.resource.data.keys().hasAny(['role']) || request.resource.data.role == 'USER');
+      
+      // Update: Owner can update profile but NOT role. Admin can update anything.
+      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])) 
+                    || isAdmin();
+      
       allow delete: if isAdmin();
     }
 
     // --- Employees Collection ---
-    // Authenticated users can read employees.
-    // Only Admins can modify employee records (prevent accidental deletion).
     match /employees/{employeeId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated(); // Allow HR staff (users) to add
-      allow update: if isAuthenticated(); // Allow HR staff to update
-      allow delete: if isAdmin(); // RESTRICT DELETE TO ADMINS
+      // Only Admins or HR (if we had an HR role) should create/edit employees
+      // For now, restricting to Admin for sensitive writes, or maybe allow all auth'd for demo purposes IF strictly needed.
+      // Going with "Pro" security:
+      allow create, update, delete: if isAdmin();
     }
 
     // --- Departments Collection ---
     match /departments/{deptId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated(); // HR staff can manage departments
+      allow write: if isAdmin();
     }
 
     // --- Attendance Collection ---
     match /attendance/{attendanceId} {
       allow read: if isAuthenticated();
+      // Users can check in (create) for themselves.
+      // We need to ensure they match the email? 
+      // Since attendance is linked by email (legacy), we assume client sends correct email.
+      // Ideally should be linked by UID. For now, allow auth users to create.
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated(); // Allow modifying attendance if needed
+      allow update: if isAuthenticated(); // For checking out
       allow delete: if isAdmin();
     }
 
     // --- Events Collection ---
     match /events/{eventId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated(); 
+      allow write: if isAdmin(); 
+    }
+    
+    // --- Documents/Storage Metadata ---
+    match /documents/{docId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated(); // Users can upload docs
+        allow delete: if isAdmin() || (isAuthenticated() && resource.data.uploadedBy == request.auth.email);
     }
   }
 }

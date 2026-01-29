@@ -5,6 +5,8 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
 import { Plus, Users, Trash2, Edit2, X } from 'lucide-react';
 
+import { Skeleton } from '../components/ui/Skeleton';
+
 export default function Departments() {
     const { departments, addDepartment, updateDepartment, deleteDepartment, loading } = useDepartments();
     const { searchTerm } = useSearch();
@@ -42,12 +44,8 @@ export default function Departments() {
         e.preventDefault();
         try {
             if (editingDept) {
-                if (updateDepartment) {
-                    await updateDepartment(editingDept.id, { name: deptName, head: deptHead });
-                    showToast('Department updated successfully', 'success');
-                } else {
-                    alert("Update feature not yet implemented in backend.");
-                }
+                await updateDepartment(editingDept.id, { name: deptName, head: deptHead });
+                showToast('Department updated successfully', 'success');
             } else {
                 await addDepartment(deptName, deptHead, 0);
                 showToast('Department created successfully', 'success');
@@ -75,10 +73,34 @@ export default function Departments() {
         dept.head.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) return <div className="text-white">Loading departments...</div>;
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <Skeleton className="h-8 w-48 mb-2" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                    <Skeleton className="h-10 w-40" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="bg-dark-800 rounded-xl p-6 border border-dark-700">
+                            <div className="flex justify-between items-start mb-4">
+                                <Skeleton className="h-12 w-12 rounded-lg" />
+                            </div>
+                            <Skeleton className="h-7 w-3/4 mb-2" />
+                            <Skeleton className="h-4 w-1/2 mb-4" />
+                            <Skeleton className="h-8 w-full rounded-lg" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <div>
+        <div className="animate-slide-up">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-white mb-2">Departments</h1>

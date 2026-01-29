@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -18,37 +19,32 @@ class ErrorBoundary extends React.Component {
     render() {
         if (this.state.hasError) {
             return (
-                <div className="min-h-screen bg-dark-900 flex items-center justify-center p-8">
-                    <div className="bg-dark-800 border border-red-500/20 rounded-xl p-8 max-w-2xl w-full">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-lg flex items-center justify-center">
-                                ⚠️
+                <div className="min-h-screen bg-dark-900 flex items-center justify-center p-6 animate-fade-in">
+                    <div className="bg-dark-800 border border-dark-700 rounded-2xl p-8 max-w-lg w-full shadow-2xl">
+                        <div className="flex flex-col items-center text-center mb-6">
+                            <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4">
+                                <AlertTriangle size={32} />
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-white">Something went wrong</h1>
-                                <p className="text-gray-400 text-sm">The application encountered an error</p>
-                            </div>
+                            <h1 className="text-2xl font-bold text-white mb-2">Something went wrong</h1>
+                            <p className="text-gray-400 text-sm">
+                                We apologize for the inconvenience. A critical error has occurred.
+                            </p>
                         </div>
 
-                        <div className="bg-dark-900 rounded-lg p-4 mb-4">
-                            <p className="text-white font-mono text-sm mb-2 whitespace-pre-wrap break-words">
-                                {this.state.error && this.state.error.toString()}
-                            </p>
-                            {this.state.errorInfo && (
-                                <details className="text-gray-400 text-xs mt-3">
-                                    <summary className="cursor-pointer hover:text-gray-300">Show stack trace</summary>
-                                    <pre className="mt-2 overflow-auto text-gray-500 whitespace-pre-wrap break-words">
-                                        {this.state.errorInfo.componentStack}
-                                    </pre>
-                                </details>
-                            )}
-                        </div>
+                        {this.state.error && (
+                            <div className="bg-dark-900/50 rounded-xl p-4 mb-6 border border-dark-700/50 overflow-hidden">
+                                <p className="text-red-400 font-mono text-xs break-words">
+                                    {this.state.error.toString()}
+                                </p>
+                            </div>
+                        )}
 
                         <button
                             onClick={() => window.location.reload()}
-                            className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg transition-colors"
+                            className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20"
                         >
-                            Reload Page
+                            <RefreshCw size={18} />
+                            <span>Reload Application</span>
                         </button>
                     </div>
                 </div>

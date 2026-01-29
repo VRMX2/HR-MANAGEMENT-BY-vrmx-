@@ -7,7 +7,7 @@ import { useLocale } from '../context/LocaleContext';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, toggle, close }) {
     const location = useLocation();
     const navigate = useNavigate();
     const { logout, currentUser } = useAuth();
@@ -61,7 +61,7 @@ export default function Sidebar() {
     ];
 
     return (
-        <div className="w-64 bg-dark-800 border-r border-dark-700 flex flex-col h-screen fixed left-0 top-0 text-sm">
+        <div className={`w-64 bg-dark-800 border-r border-dark-700 flex flex-col h-screen fixed left-0 top-0 text-sm z-40 transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="p-6 flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-8">
                     <div className="bg-gradient-to-br from-primary-500 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">V</div>
@@ -75,6 +75,7 @@ export default function Sidebar() {
                             <Link
                                 key={item.label}
                                 to={item.path}
+                                onClick={close}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${active === item.path
                                     ? 'bg-gradient-to-r from-primary-600/10 to-transparent text-primary-500'
                                     : 'text-gray-400 hover:text-white hover:bg-dark-700'
@@ -103,6 +104,7 @@ export default function Sidebar() {
                             <Link
                                 key={item.label}
                                 to={item.path}
+                                onClick={close}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${active === item.path
                                     ? 'bg-dark-700 text-white'
                                     : 'text-gray-400 hover:text-white hover:bg-dark-700'
