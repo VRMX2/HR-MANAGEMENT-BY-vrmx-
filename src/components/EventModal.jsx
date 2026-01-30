@@ -40,8 +40,8 @@ export default function EventModal({ isOpen, onClose, onSubmit, initialData = nu
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-            <div className="bg-dark-800 rounded-xl border border-dark-700 w-full max-w-md p-6 shadow-2xl animate-slide-up" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in" onClick={onClose}>
+            <div className="glass rounded-2xl w-full max-w-md p-6 shadow-2xl shadow-primary-500/10 animate-slide-up border-primary-500/20" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-white">
                         {initialData ? 'Edit Event' : 'Add New Event'}

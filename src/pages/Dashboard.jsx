@@ -72,50 +72,58 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="space-y-6 animate-slide-up">
-            <div className="mb-8">
+        <div className="space-y-6">
+            <div className="mb-8 animate-fade-in">
                 <h1 className="text-2xl font-bold text-white mb-2">Dashboard</h1>
                 <p className="text-gray-400">Welcome back, {currentUser?.displayName?.split(' ')[0] || 'User'}. Here's your HR overview.</p>
             </div>
 
-            {/* Stats Row */}
+            {/* Stats Grid with Staggered Animation */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    title="Total Employees"
-                    value={totalEmployees}
-                    subtext="from last month"
-                    icon={Users}
-                    trend="up"
-                    trendValue="+12%"
-                    iconColor="text-orange-500"
-                />
-                <StatCard
-                    title="Present Today"
-                    value={presentToday}
-                    subtext="active now"
-                    icon={UserCheck}
-                    trend="up"
-                    trendValue={`${totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0}%`}
-                    iconColor="text-green-500"
-                />
-                <StatCard
-                    title="On Leave"
-                    value={onLeave}
-                    subtext="employees away"
-                    icon={UserMinus}
-                    trend="down"
-                    trendValue="stable"
-                    iconColor="text-red-500"
-                />
-                <StatCard
-                    title="Pending Requests"
-                    value={pendingRequests}
-                    subtext="require attention"
-                    icon={Clock}
-                    trend="up"
-                    trendValue="+2"
-                    iconColor="text-yellow-500"
-                />
+                <div className="animate-stagger">
+                    <StatCard
+                        title="Total Employees"
+                        value={totalEmployees}
+                        subtext="from last month"
+                        Icon={Users}
+                        trend="up"
+                        trendValue="+12%"
+                        iconColor="text-orange-500"
+                    />
+                </div>
+                <div className="animate-stagger">
+                    <StatCard
+                        title="Present Today"
+                        value={presentToday}
+                        subtext="active now"
+                        Icon={UserCheck}
+                        trend="up"
+                        trendValue={`${totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0}%`}
+                        iconColor="text-green-500"
+                    />
+                </div>
+                <div className="animate-stagger">
+                    <StatCard
+                        title="On Leave"
+                        value={onLeave}
+                        subtext="employees away"
+                        icon={UserMinus}
+                        trend="down"
+                        trendValue="stable"
+                        iconColor="text-red-500"
+                    />
+                </div>
+                <div className="animate-stagger">
+                    <StatCard
+                        title="Pending Requests"
+                        value={pendingRequests}
+                        subtext="require attention"
+                        Icon={Clock}
+                        trend="up"
+                        trendValue="+2"
+                        iconColor="text-yellow-500"
+                    />
+                </div>
             </div>
 
             {/* Middle Row */}

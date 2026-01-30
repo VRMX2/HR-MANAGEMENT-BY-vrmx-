@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEmployees } from '../context/EmployeeContext';
 import { useSearch } from '../context/SearchContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { Plus, MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import clsx from 'clsx';
 import AddEmployeeModal from '../components/AddEmployeeModal';
 
 import { Skeleton } from '../components/ui/Skeleton';
+
+const statusColors = {
+    'Active': 'bg-green-500/10 text-green-500 border border-green-500/20',
+    'On Leave': 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20',
+    'Terminated': 'bg-red-500/10 text-red-500 border border-red-500/20'
+};
 
 export default function Employees() {
     const { employees, deleteEmployee, addEmployee, updateEmployee, loading } = useEmployees();
@@ -137,38 +144,29 @@ export default function Employees() {
                         </thead>
                         <tbody className="divide-y divide-dark-700/50">
                             {currentEmployees.length > 0 ? (
-                                currentEmployees.map((emp) => (
-                                    <tr key={emp.id} className="group hover:bg-dark-700/30 transition-colors">
-                                        <td className="px-6 py-4">
+                                currentEmployees.map((emp, idx) => (
+                                    <tr key={emp.id} className="border-b border-dark-700 hover:bg-dark-700/30 transition-all duration-200 elevation-1">
+                                        <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-full ${emp.color || 'bg-gray-600'} flex items-center justify-center text-sm font-bold text-white overflow-hidden`}>
-                                                    {emp.avatar && emp.avatar.length > 2 ? (
-                                                        <img src={emp.avatar} alt={emp.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        emp.avatar || emp.name[0]
-                                                    )}
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
+                                                    {emp.name?.charAt(0)?.toUpperCase() || 'U'}
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm font-medium text-white">{emp.name}</div>
-                                                    <div className="text-xs text-gray-500">{emp.email}</div>
+                                                    <div className="font-medium text-white">{emp.name}</div>
+                                                    <div className="text-sm text-gray-400">{emp.email}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-300 font-medium">{emp.dept}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-400">{emp.role}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${emp.status === 'Active'
-                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                : emp.status === 'On Leave'
-                                                    ? 'bg-red-500/10 text-red-500 border-red-500/20'
-                                                    : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                                }`}>
+                                        <td className="py-4 px-6 text-sm text-gray-300 font-medium">{emp.dept}</td>
+                                        <td className="py-4 px-6 text-sm text-gray-400">{emp.role}</td>
+                                        <td className="py-4 px-6">
+                                            <span className={clsx("px-3 py-1 rounded-full text-xs font-medium", statusColors[emp.status] || statusColors.Active)}>
                                                 {emp.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-400">{emp.joined}</td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <td className="py-4 px-6 text-sm text-gray-400">{emp.joined}</td>
+                                        <td className="py-4 px-6 text-right">
+                                            <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleEdit(emp)}
                                                     className="p-2 text-gray-400 hover:text-white hover:bg-dark-600 rounded-lg transition-colors"
