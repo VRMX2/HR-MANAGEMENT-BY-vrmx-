@@ -2,17 +2,22 @@ import React, { useState, useRef } from 'react';
 import { useDocuments } from '../context/DocumentContext';
 import { useSearch } from '../context/SearchContext';
 import { useToast } from '../context/ToastContext';
-import { FileText, Upload, Trash2, File, Image as ImageIcon, FileSpreadsheet, MoreVertical, Download, Search } from 'lucide-react';
+import { FileText, Upload, Trash2, File, Image as ImageIcon, FileSpreadsheet, MoreVertical, Download } from 'lucide-react';
 import { Skeleton } from '../components/ui/Skeleton';
 
 export default function Documents() {
     const { documents, uploadDocument, deleteDocument, loading } = useDocuments();
-    const { searchTerm, setSearchTerm } = useSearch();
+    const { searchTerm } = useSearch();
     const fileInputRef = useRef(null);
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    // Reset to page 1 when search term changes
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const { showToast } = useToast();
 
@@ -121,18 +126,6 @@ export default function Documents() {
                         <span>Upload Document</span>
                     </button>
                 </div>
-            </div>
-
-            {/* Inner Search Bar synced with global */}
-            <div className="mb-6 relative max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <input
-                    type="text"
-                    placeholder="Search documents..."
-                    value={searchTerm}
-                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                    className="w-full bg-dark-800 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-primary-500 transition-colors"
-                />
             </div>
 
             <div className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden flex flex-col">

@@ -57,8 +57,22 @@ export default function RecentEmployees({ searchTerm = '' }) {
                         ))}
                         {filteredEmployees.length === 0 && (
                             <tr>
-                                <td colSpan="3" className="py-8 text-center text-gray-500">
-                                    No employees found matching "{searchTerm}".
+                                <td colSpan="3" className="py-12 text-center">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-12 h-12 rounded-full bg-gray-700/30 flex items-center justify-center">
+                                            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-400 font-medium mb-1">
+                                                {searchTerm ? `No employees found matching "${searchTerm}"` : 'No employees yet'}
+                                            </p>
+                                            <p className="text-gray-600 text-xs">
+                                                {searchTerm ? 'Try a different search term' : 'Add your first employee to get started'}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         )}

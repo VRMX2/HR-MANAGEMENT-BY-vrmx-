@@ -3,14 +3,14 @@ import { useEmployees } from '../context/EmployeeContext';
 import { useSearch } from '../context/SearchContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import { Search, Plus, MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, Edit } from 'lucide-react';
 import AddEmployeeModal from '../components/AddEmployeeModal';
 
 import { Skeleton } from '../components/ui/Skeleton';
 
 export default function Employees() {
     const { employees, deleteEmployee, addEmployee, updateEmployee, loading } = useEmployees();
-    const { searchTerm, setSearchTerm } = useSearch();
+    const { searchTerm } = useSearch();
     const { showToast } = useToast();
     const { userData } = useAuth();
 
@@ -20,6 +20,11 @@ export default function Employees() {
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    // Reset to page 1 when search term changes
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const filteredEmployees = employees.filter(emp =>
         emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,19 +123,6 @@ export default function Employees() {
             </div>
 
             <div className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden flex flex-col">
-                <div className="p-4 border-b border-dark-700 bg-dark-800/50">
-                    <div className="relative max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search by name, role, or department..."
-                            value={searchTerm}
-                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} // Reset page on search
-                            className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-primary-500 transition-colors"
-                        />
-                    </div>
-                </div>
-
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>

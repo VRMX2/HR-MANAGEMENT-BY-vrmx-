@@ -83,7 +83,7 @@ export function EventProvider({ children }) {
                     for (const event of sampleEvents) {
                         await addDoc(collection(db, 'events'), event);
                     }
-                    console.log('Seeded sample events');
+                    // Events seeded successfully
                 } catch (error) {
                     console.error('Error seeding events:', error);
                 }

@@ -85,11 +85,14 @@ export default function Login() {
         <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-dark-800 border border-dark-700 rounded-xl p-8 w-full max-w-md shadow-2xl">
                 <div className="flex flex-col items-center mb-8">
-                    <div className="bg-primary-500 w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-2xl mb-4">P</div>
-                    <h2 className="text-2xl font-bold text-white">
+                    <div className="bg-gradient-to-br from-primary-500 to-primary-600 w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-white text-2xl mb-4 shadow-lg shadow-primary-500/30">
+                        HR
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-1">Hrvrmx</h1>
+                    <h2 className="text-xl font-semibold text-gray-300 mb-2">
                         {isReset ? 'Reset Password' : (isLogin ? 'Welcome back' : 'Create Account')}
                     </h2>
-                    <p className="text-gray-400">
+                    <p className="text-gray-400 text-sm">
                         {isReset ? 'Enter your email to receive reset instructions' : 'Please sign in to continue'}
                     </p>
                 </div>
@@ -147,10 +150,19 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30"
                     >
-                        {loading ? 'Processing...' : (isReset ? 'Reset Password' : (isLogin ? 'Sign In' : 'Create Account'))}
-                        {!loading && (isReset ? <KeyRound size={18} /> : <LogIn size={18} />)}
+                        {loading ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Processing...
+                            </>
+                        ) : (
+                            <>
+                                {isReset ? 'Reset Password' : (isLogin ? 'Sign In' : 'Create Account')}
+                                {isReset ? <KeyRound size={18} /> : <LogIn size={18} />}
+                            </>
+                        )}
                     </button>
                 </form>
 
@@ -177,7 +189,7 @@ export default function Login() {
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={loading}
-                            className="w-full bg-white hover:bg-gray-100 text-black font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                            className="w-full bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-black font-medium py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -185,7 +197,7 @@ export default function Login() {
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
-                            Sign in with Google
+                            {loading ? 'Signing in...' : 'Sign in with Google'}
                         </button>
 
                         <p className="mt-8 text-center text-sm text-gray-400">

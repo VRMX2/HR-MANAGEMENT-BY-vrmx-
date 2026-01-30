@@ -25,10 +25,11 @@ export default function Header({ toggleSidebar }) {
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 bg-dark-800 hover:bg-dark-700 text-white px-4 py-2 rounded-lg border border-dark-700 transition-colors text-sm font-medium hover:border-gray-600"
+                        className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 hover:scale-105"
                     >
                         <Plus size={16} />
-                        <span>Add Employee</span>
+                        <span className="hidden sm:inline">Add Employee</span>
+                        <span className="sm:hidden">Add</span>
                     </button>
 
                     <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-white transition-colors">

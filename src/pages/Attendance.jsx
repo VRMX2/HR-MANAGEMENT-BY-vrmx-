@@ -3,7 +3,8 @@ import { useAttendance } from '../context/AttendanceContext';
 import { useEmployees } from '../context/EmployeeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { CheckCircle, XCircle, Clock, Calendar, Download, Search, UserCheck } from 'lucide-react';
+import { useSearch } from '../context/SearchContext';
+import { CheckCircle, XCircle, Clock, Calendar, Download, UserCheck } from 'lucide-react';
 import { Skeleton } from '../components/ui/Skeleton';
 
 export default function Attendance() {
@@ -11,10 +12,15 @@ export default function Attendance() {
     const { employees } = useEmployees();
     const { currentUser } = useAuth();
     const { showToast } = useToast();
+    const { searchTerm } = useSearch();
 
     // UI state
-    const [searchTerm, setSearchTerm] = useState('');
     const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
+
+    // Reset filter date when search term changes (optional UX improvement)
+    React.useEffect(() => {
+        // Keep current filter date, just let search work across it
+    }, [searchTerm]);
 
     // Check current user status
     // In real app, we would query the backend for *my* status.
@@ -207,18 +213,8 @@ export default function Attendance() {
             </div>
 
             <div className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
-                <div className="p-4 border-b border-dark-700 bg-dark-800/50 flex justify-between items-center">
+                <div className="p-4 border-b border-dark-700 bg-dark-800/50">
                     <h3 className="font-bold text-white">Attendance Logs</h3>
-                    <div className="relative max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                        <input
-                            type="text"
-                            placeholder="Search employee..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-dark-900 border border-dark-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-primary-500"
-                        />
-                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
