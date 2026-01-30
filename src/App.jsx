@@ -8,6 +8,7 @@ import Departments from './pages/Departments';
 import Attendance from './pages/Attendance';
 import Documents from './pages/Documents';
 import Analytics from './pages/Analytics';
+import Statistics from './pages/Statistics';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import HelpCenter from './pages/HelpCenter';
@@ -81,6 +82,13 @@ function App() {
                                                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                                                     <DashboardLayout>
                                                                         <Analytics />
+                                                                    </DashboardLayout>
+                                                                </ProtectedRoute>
+                                                            } />
+                                                            <Route path="/statistics" element={
+                                                                <ProtectedRoute>
+                                                                    <DashboardLayout>
+                                                                        <Statistics />
                                                                     </DashboardLayout>
                                                                 </ProtectedRoute>
                                                             } />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, Settings, Bell, HelpCircle, LogOut, Search } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, TrendingUp, Settings, Bell, HelpCircle, LogOut, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLocale } from '../context/LocaleContext';
@@ -54,6 +54,7 @@ export default function Sidebar({ isOpen, toggle, close }) {
         { icon: CalendarDays, label: t('attendance'), path: '/attendance' },
         { icon: FileText, label: t('documents'), path: '/documents' },
         { icon: BarChart3, label: t('analytics'), path: '/analytics' },
+        { icon: TrendingUp, label: 'Statistics', path: '/statistics' },
     ];
 
     const settingsItems = [
