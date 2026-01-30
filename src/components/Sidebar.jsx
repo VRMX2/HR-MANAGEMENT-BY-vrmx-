@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, Settings, Bell, HelpCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, CalendarDays, FileText, BarChart3, Settings, Bell, HelpCircle, LogOut, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLocale } from '../context/LocaleContext';
+import { useSearch } from '../context/SearchContext';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
@@ -13,6 +14,7 @@ export default function Sidebar({ isOpen, toggle, close }) {
     const { logout, currentUser } = useAuth();
     const { showToast } = useToast();
     const { t } = useLocale();
+    const { searchTerm, setSearchTerm } = useSearch();
     const active = location.pathname;
     const [unreadCount, setUnreadCount] = useState(0);
 
@@ -63,9 +65,22 @@ export default function Sidebar({ isOpen, toggle, close }) {
     return (
         <div className={`w-64 bg-dark-800 border-r border-dark-700 flex flex-col h-screen fixed left-0 top-0 text-sm z-40 transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="p-6 flex-1 flex flex-col">
-                <div className="flex items-center gap-2 mb-8">
-                    <div className="bg-gradient-to-br from-primary-500 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">T</div>
-                    <h1 className="text-xl font-bold text-white tracking-tight">TaskVrmx</h1>
+                <div className="flex items-center gap-2 mb-6">
+                    <div className="bg-gradient-to-br from-primary-500 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">H</div>
+                    <h1 className="text-xl font-bold text-white tracking-tight">Hrvrmx</h1>
+                </div>
+
+                <div className="mb-6">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search..."
+                            className="w-full bg-dark-900/50 border border-dark-700 rounded-lg pl-9 pr-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-primary-500 transition-colors placeholder-gray-600"
+                        />
+                    </div>
                 </div>
 
                 <div className="mb-6">

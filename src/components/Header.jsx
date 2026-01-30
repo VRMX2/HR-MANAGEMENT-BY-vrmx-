@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Bell, Menu } from 'lucide-react';
+import { Plus, Bell, Menu } from 'lucide-react';
 import { useEmployees } from '../context/EmployeeContext';
-import { useSearch } from '../context/SearchContext';
+
 import { useAuth } from '../context/AuthContext';
 import AddEmployeeModal from './AddEmployeeModal';
 
 export default function Header({ toggleSidebar }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { addEmployee } = useEmployees();
-    const { searchTerm, setSearchTerm } = useSearch();
+
     const { currentUser } = useAuth();
 
     return (
@@ -19,16 +19,7 @@ export default function Header({ toggleSidebar }) {
                     <button onClick={toggleSidebar} className="md:hidden text-gray-400 hover:text-white">
                         <Menu size={24} />
                     </button>
-                    <div className="relative w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search employees, departments..."
-                            className="w-full bg-dark-800 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-primary-500 transition-colors"
-                        />
-                    </div>
+                    {/* Search moved to Sidebar */}
                 </div>
 
                 <div className="flex items-center gap-4">
